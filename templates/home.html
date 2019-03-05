@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> jjudge </title>
+        <link rel="stylesheet" href="{{ url_for('static',filename='css/main.css') }}">
+    </head>
+    <body>
+        <header>
+        <div class="home">
+            <h2 class="logo"> John Judge's Website </h2>
+            <h1> Chicago, IL </h1>
+
+            <strong><nav>
+                <ul class="menu">
+
+                    <li> <a href="{{ url_for('about') }}">About</a></li>
+
+                </ul>
+            </nav></strong>
+            <br> </br>
+        </div>
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+        </header>
+
+    </body>
+</html>
