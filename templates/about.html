@@ -4,9 +4,15 @@
         {% extends "home.html" %}
         {% block content %}
         <div class="about">
-            <h2> About the this chess program </h2>
+            <strong><nav>
+                <ul class="menu">
 
-            <h2> About the creators of this chess program </h2>
+                    <li> <a href="{{ url_for('home') }}">Home</a></li>
+                </ul>
+            </nav></strong>
+            <h3> About this chess program </h3>
+
+            <h3> About the creators of this chess program </h3>
 
         </div>
     {% endblock %}

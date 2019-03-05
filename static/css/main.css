@@ -1,7 +1,8 @@
+/* styling courtesy of https://pythonhow.com/add-css-to-flask-website/ */
 body {
     margin: 0;
     padding: 0;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: font-family: "Lucida Console"; // "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #444;
 }
 
@@ -29,19 +30,35 @@ header h1.logo:hover {
 }
 
 
-/* center the body content */
+/* Centering the body content */
 
 container {
-    width: 800px;
+    width: 1200px;
     margin: 0 auto;
 }
 
+div.home {
+    padding: 10px 0 30px 0;
+    background-color: #E6E6FA;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
 
 h2 {
     font-size: 3em;
-    margin-top: 35px;
+    margin-top: 40px;
     text-align: center;
     letter-spacing: -2px;
+}
+
+h3 {
+    font-size: 1.7em;
+    font-weight: 100;
+    margin-top: 30px;
+    text-align: center;
+    letter-spacing: -1px;
+    color: #999;
 }
 
 .menu {
@@ -54,10 +71,12 @@ h2 {
 }
 
 .menu li + li {
-    margin-left: 30px;
+    margin-left: 35px;
 }
 
 .menu li a {
     color: #444;
     text-decoration: none;
 }
+
+
