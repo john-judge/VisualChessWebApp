@@ -3,12 +3,31 @@
     <head>
         <title> Chess </title>
         <link rel="stylesheet" href="{{ url_for('static',filename='css/main.css') }}">
+
     </head>
     <body>
         <header>
         <div class="home">
             <h2 class="logo"> Chess </h2>
-            <h1> flesh versus silicon. </h1>
+            <h3> It's a lovely afternoon for a clash of flesh and silicon. </h3>
+
+
+
+
+            <h3>
+            <button type="button" onclick="start_game()">New Game</button>
+
+            <p> </p>
+
+            <img id="cover" src='{{ url_for('static',filename="png/cover_photo.jpg") }}' style="width:1000px">
+            </h3>
+
+            <p align="center">
+                <canvas id="board" width="600" height="600" style="border:3px solid #000000" style="display:none">
+                    Your browser does not suppoer canvas.
+                </canvas>
+            <p>
+
 
             <strong><nav>
                 <ul class="menu">
@@ -24,6 +43,76 @@
             {% endblock %}
         </div>
         </header>
+
+        <script>
+        document.getElementById('board').style.display = "none";
+
+        class Loc {
+            /* can be pixel location or board location,
+                depending on context */
+            constructor(i,j) {
+                this.i = i;
+                this.j = j;
+            }
+            loc_equals(loc2) {
+                /* is LOC equivalent to arg LOC2? */
+                return ((this.i == loc2.i) && (this.j == loc2.j));
+            }
+        }
+
+        function print_square(color,sideLen,topLeft) {
+            var b = document.getElementById('board');
+            var ctx = b.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.fillRect(topLeft.i,topLeft.j,sideLen,sideLen);
+        }
+
+        class Board {
+
+            constructor(squares,screen_size,light,dark) {
+                //this.squares = squares; // 8x8 grid (nested arrays)
+                this.playing = true;
+                this.screen_size = screen_size; // square
+                this.sideLen = screen_size / 8;
+                // colors of squares:
+                this.light = light;
+                this.dark = dark;
+                //this.highlights = new Highlights();
+            }
+
+            print_grid() {
+                for(var i = 0; i < 8; i++) {
+                    for(var j = 0; j < 8; j++) {
+                        var x = i * this.sideLen;
+                        var y = j * this.sideLen;
+                        var sqLoc = new Loc(x,y);
+                        var isLight = (((i % 2 == 0) && (j % 2 == 0)) ||
+                        (i % 2 == 1) && (j % 2 == 1));
+                        var color;
+                        if(isLight) {
+                            color = this.light;
+                        } else {
+                            color = this.dark;
+                        }
+                        print_square(color,this.sideLen,sqLoc);
+                    }
+                }
+            }
+        }
+
+        function start_game() {
+            document.getElementById("cover").style.display = "none";
+            var b = document.getElementById('board');
+            b.style.display = "block";
+            b.margin = "auto";
+            b.padding="0";
+            var light = "#DFE8EE";
+            var dark = "#2970A0";
+            var squares = "";
+            var gameBoard = new Board(null,600,light,dark);
+            gameBoard.print_grid();
+        }
+        </script>
 
     </body>
 </html>
