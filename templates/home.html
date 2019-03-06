@@ -60,17 +60,52 @@
             }
         }
 
-        function print_square(color,sideLen,topLeft) {
+        function get_piece_art_filepath(sq) {
+            /* returns filepath to piece art, or "" if empty square */
+            if(sq == '-') {
+                return "";
+            }
+            var file_lookup = {
+                'p':"white_pawn.png",
+                'P':"black_pawn.png",
+                'R':"black_rook.png",
+                'N':"black_knight.png",
+                'B':"black_bishop.png",
+                'Q':"black_queen.png",
+                'K':"black_king.png",
+                'r':"white_rook.png",
+                'n':"white_knight.png",
+                'b':"white_bishop.png",
+                'q':"white_queen.png",
+                'k':"white_king.png"
+            };
+            return "/static/png/piece_art/" + file_lookup[sq];
+
+        }
+
+        function print_square(color,sideLen,topLeft,pc) {
             var b = document.getElementById('board');
             var ctx = b.getContext('2d');
             ctx.fillStyle = color;
             ctx.fillRect(topLeft.i,topLeft.j,sideLen,sideLen);
+
+            if (pc != '-') {
+                var fp_image = get_piece_art_filepath(pc);
+                var image = new Image();
+                var b = document.getElementById('board');
+                var ctx = b.getContext('2d');
+                image.src = fp_image;
+                image.onload = function () {//waits for image to load
+                    ctx.drawImage(image,topLeft.i,topLeft.j,sideLen,sideLen);
+                };
+
+            }
         }
 
         class Board {
 
             constructor(squares,screen_size,light,dark) {
-                //this.squares = squares; // 8x8 grid (nested arrays)
+                this.squares = squares; // 8x8 grid (nested arrays)
                 this.playing = true;
                 this.screen_size = screen_size; // square
                 this.sideLen = screen_size / 8;
@@ -80,7 +115,12 @@
                 //this.highlights = new Highlights();
             }
 
-            print_grid() {
+            get_piece(loc) {
+                var index = loc.i + loc.j * 8;
+                return this.squares.charAt(index);
+            }
+
+            print_board() {
                 for(var i = 0; i < 8; i++) {
                     for(var j = 0; j < 8; j++) {
                         var x = i * this.sideLen;
@@ -94,11 +134,13 @@
                         } else {
                             color = this.dark;
                         }
-                        print_square(color,this.sideLen,sqLoc);
+                        var pcLoc = new Loc(i,j)
+                        var pc = this.get_piece(pcLoc);
+                        print_square(color,this.sideLen,sqLoc,pc);
+                        }
                     }
                 }
             }
-        }
 
         function start_game() {
             document.getElementById("cover").style.display = "none";
@@ -108,9 +150,9 @@
             b.padding="0";
             var light = "#DFE8EE";
             var dark = "#2970A0";
-            var squares = "";
-            var gameBoard = new Board(null,600,light,dark);
-            gameBoard.print_grid();
+            var squares = "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr";
+            var gameBoard = new Board(squares,600,light,dark);
+            gameBoard.print_board();
         }
         </script>
 
