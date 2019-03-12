@@ -24,7 +24,7 @@
 
             <p align="center">
                 <canvas id="board" width="600" height="600" style="border:3px solid #000000" style="display:none">
-                    Your browser does not suppoer canvas.
+                    Your browser does not support canvas.
                 </canvas>
             <p>
 
@@ -45,7 +45,11 @@
         </header>
 
         <script>
-        document.getElementById('board').style.display = "none";
+        const boardCanvas = document.getElementById('board');
+        boardCanvas.style.display = "none";
+        boardCanvas.addEventListener('click', (e) => {
+            alert('clicked on board');
+        } );
 
         class Loc {
             /* can be pixel location or board location,
@@ -100,6 +104,13 @@
                 };
 
             }
+        }
+
+        function get_click_location(canvas, event) {
+            var bounds = canvas.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+            return new Loc(x,y)
         }
 
         class Board {
