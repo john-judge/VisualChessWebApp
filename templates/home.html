@@ -48,7 +48,8 @@
         const boardCanvas = document.getElementById('board');
         boardCanvas.style.display = "none";
         boardCanvas.addEventListener('click', (e) => {
-            alert('clicked on board');
+            cLoc = get_click_location(boardCanvas,e);
+            alert('clicked on board: loc ',cLoc.i,cLoc.j);
         } );
 
         class Loc {
@@ -65,6 +66,18 @@
 
             to_index() {
                 return this.i + this.j * 8;
+            }
+
+            to_pixel(sideLen) {
+                var x = this.i * sideLen;
+                var y = this.j * sideLen;
+                return new Loc(x,y);
+            }
+
+            to_square(sideLen) {
+                var x = Math.floor(this.i / sideLen);
+                var y = Math.floor(this.j / sideLen);
+                return new Loc(x,y);
             }
         }
 
@@ -122,8 +135,8 @@
 
         function get_click_location(canvas, event) {
             var bounds = canvas.getBoundingClientRect();
-            var x = event.clientX - rect.left;
-            var y = event.clientY - rect.top;
+            var x = event.clientX - bounds.left;
+            var y = event.clientY - bounds.top;
             return new Loc(x,y)
         }
 
@@ -169,9 +182,8 @@
             print_board() {
                 for(var i = 0; i < 8; i++) {
                     for(var j = 0; j < 8; j++) {
-                        var x = i * this.sideLen;
-                        var y = j * this.sideLen;
-                        var sqLoc = new Loc(x,y);
+                        var pcLoc = new Loc(i,j)
+                        var sqLoc = pcLoc.to_pixel(this.sideLen);
                         var isLight = (((i % 2 == 0) && (j % 2 == 0)) ||
                         (i % 2 == 1) && (j % 2 == 1));
                         var color;
@@ -180,7 +192,6 @@
                         } else {
                             color = this.dark;
                         }
-                        var pcLoc = new Loc(i,j)
                         var pc = this.get_piece(pcLoc);
                         var highLit = "";
                         if(this.isHighlighted(pcLoc)) {
