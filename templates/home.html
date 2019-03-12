@@ -9,7 +9,7 @@
         <header>
         <div class="home">
             <h2 class="logo"> Chess </h2>
-            <h3> It's a lovely afternoon for a clash of flesh and silicon. </h3>
+            <h3> It's a lovely afternoon for a clash between carbon and silicon. </h3>
 
 
 
@@ -62,6 +62,10 @@
                 /* is LOC equivalent to arg LOC2? */
                 return ((this.i == loc2.i) && (this.j == loc2.j));
             }
+
+            to_index() {
+                return this.i + this.j * 8;
+            }
         }
 
         function get_piece_art_filepath(sq) {
@@ -87,11 +91,21 @@
 
         }
 
-        function print_square(color,sideLen,topLeft,pc) {
+        function print_square(color,sideLen,topLeft,pc,highLit) {
             var b = document.getElementById('board');
             var ctx = b.getContext('2d');
             ctx.fillStyle = color;
             ctx.fillRect(topLeft.i,topLeft.j,sideLen,sideLen);
+
+            if(highLit) {
+                console.log("highlights...")
+                var ctx = b.getContext('2d');
+                ctx.beginPath();
+                ctx.strokeStyle = highLit;
+                ctx.linewidth = "6";
+                ctx.rect(topLeft.i,topLeft.j,sideLen,sideLen);
+                ctx.stroke();
+            }
 
             if (pc != '-') {
                 var fp_image = get_piece_art_filepath(pc);
@@ -116,19 +130,40 @@
         class Board {
 
             constructor(squares,screen_size,light,dark) {
-                this.squares = squares; // 8x8 grid (nested arrays)
+                this.squares = squares; // 64 char string, view as 8x8 grid
+                this.highlights1 = 0; // two 32-bit integers, 1 is highlighted
+                this.highlights2 = 0;
                 this.playing = true;
                 this.screen_size = screen_size; // square
                 this.sideLen = screen_size / 8;
-                // colors of squares:
+                // colorings of squares:
                 this.light = light;
                 this.dark = dark;
+                this.hliteColor = "#FF2828"; // hard coded: red highlights
                 //this.highlights = new Highlights();
             }
 
+            isHighlighted(loc) {
+                /* return the highlight state of LOC */
+                var ind = loc.to_index();
+                if (ind > 31) {
+                    return (this.highlights2 >>> ind) & 1;
+                }
+                return (this.highlights1 >>> ind) & 1;
+            }
+
             get_piece(loc) {
-                var index = loc.i + loc.j * 8;
-                return this.squares.charAt(index);
+                return this.squares.charAt(loc.to_index());
+            }
+
+            add_highlight(loc) {
+                /* set hi lite state of LOC */
+                var ind = loc.to_index();
+                if (ind > 31) {
+                    this.highlights2 = this.highlights2 | (1 << ind);
+                } else {
+                    this.highlights1 = this.highlights1 | (1 << ind);
+                }
             }
 
             print_board() {
@@ -147,11 +182,15 @@
                         }
                         var pcLoc = new Loc(i,j)
                         var pc = this.get_piece(pcLoc);
-                        print_square(color,this.sideLen,sqLoc,pc);
+                        var highLit = "";
+                        if(this.isHighlighted(pcLoc)) {
+                            highLit = this.hliteColor;
                         }
+                        print_square(color,this.sideLen,sqLoc,pc,highLit);
                     }
                 }
             }
+        }
 
         function start_game() {
             document.getElementById("cover").style.display = "none";
@@ -163,6 +202,8 @@
             var dark = "#2970A0";
             var squares = "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr";
             var gameBoard = new Board(squares,600,light,dark);
+            var hl = new Loc(3,4);
+            gameBoard.add_highlight(new Loc(3,4));
             gameBoard.print_board();
         }
         </script>
