@@ -9,7 +9,7 @@
         <header>
         <div class="home">
             <h2 class="logo"> Chess </h2>
-            <h3> It's a lovely afternoon for a clash between carbon and silicon. </h3>
+            <h3> It's a lovely afternoon for a clash of carbon and silicon. </h3>
 
 
 
@@ -47,10 +47,21 @@
         <script>
         const boardCanvas = document.getElementById('board');
         boardCanvas.style.display = "none";
-        boardCanvas.addEventListener('click', (e) => {
-            cLoc = get_click_location(boardCanvas,e);
-            alert('clicked on board: loc ',cLoc.i,cLoc.j);
+        boardCanvas.addEventListener('click', function(event) {
+            var cLoc = get_click_location(boardCanvas,event);
+            alert('clicked on board: loc ' + cLoc.i + ' ' + cLoc.j);
         } );
+
+        function get_click_location(canvas, event) {
+            var bounds = canvas.getBoundingClientRect();
+            var x = event.clientX - bounds.left;
+            var y = event.clientY - bounds.top;
+            var loc = new Loc(x,y);
+            console.log(x,y);
+            return loc;
+        }
+
+
 
         class Loc {
             /* can be pixel location or board location,
@@ -111,12 +122,15 @@
             ctx.fillRect(topLeft.i,topLeft.j,sideLen,sideLen);
 
             if(highLit) {
-                console.log("highlights...")
                 var ctx = b.getContext('2d');
                 ctx.beginPath();
                 ctx.strokeStyle = highLit;
-                ctx.linewidth = "6";
-                ctx.rect(topLeft.i,topLeft.j,sideLen,sideLen);
+
+                var shrinkBy = 6;
+                ctx.lineWidth = shrinkBy.toString();
+                var hiSideLen = sideLen - shrinkBy;
+                var hx = topLeft.i + shrinkBy/2; var hy = topLeft.j + shrinkBy/2;
+                ctx.rect(hx,hy,hiSideLen,hiSideLen);
                 ctx.stroke();
             }
 
@@ -131,13 +145,6 @@
                 };
 
             }
-        }
-
-        function get_click_location(canvas, event) {
-            var bounds = canvas.getBoundingClientRect();
-            var x = event.clientX - bounds.left;
-            var y = event.clientY - bounds.top;
-            return new Loc(x,y)
         }
 
         class Board {
