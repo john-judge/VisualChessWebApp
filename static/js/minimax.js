@@ -1,6 +1,16 @@
-function whiteScore(gameState) {
-    /* return score of white player */
+function staticScore(pc) {
+    /* return score change to white player by loss of PC */
+    if (!pc || (pc == '.')) {
+        return 0;
+    }
+    var pieceScores = {
+        'P':1,  'r':-5, 'n':-3, 'b':-3, 'q':9,  'k':-99,
+        'p':-1, 'R':5,  'N':3,  'B':3,  'Q':9,  'K':99
+    };
+    return pieceScores[pc] * -1;
 }
+
+
 
 
 function machineGreedy(gameState) {

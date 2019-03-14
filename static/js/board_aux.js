@@ -178,7 +178,7 @@ function start_game() {
     b.style.display = "block";
     b.margin = "auto";          var light = "#DFE8EE";
     b.padding="0";              var dark = "#2970A0";
-    var gameBoard = new Board(600,light,dark);
+    var gameBoard = new Board(600,light,dark,staticScore);
     b.gameBoardState = gameBoard;
     gameBoard.printBoard();
 }

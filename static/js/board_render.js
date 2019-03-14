@@ -1,5 +1,5 @@
 class Board {
-    constructor(screen_size,light,dark) {
+    constructor(screen_size,light,dark,score_fn) {
         this.gameState = new Chess();
         /* 64 char string, view as 8x8 grid: */
         this.squares = reformatBoardString(this.gameState.ascii());
@@ -11,11 +11,21 @@ class Board {
         this.playing = true;
         this.screen_size = screen_size; // square
         this.sideLen = screen_size / 8;
+
+        /*score evaluation; positive means white is winning*/
+        this.score = 0;
+        this.scoreFn = score_fn;
+
         /* colorings of squares/highlights: */
         this.light = light;
         this.dark = dark;
         this.hliteColor = "#FF2828"; // hard coded: red highlights
     }
+
+    scoreEvalFn(pc) {
+        return this.scoreFn(pc);
+    }
+
     isHighlighted(loc) {
         /* return the highlight state of LOC */
         var ind = loc.to_index();
@@ -155,6 +165,9 @@ class Board {
         this.selectedLoc = null;
         this.clearHighlights();
         if(update) {
+            /* first track score change */
+            this.score += this.scoreEvalFn(this.getPiece(move.dst));
+            console.log("score:" + this.score);
             var oldSquares = this.squares;
             this.squares = reformatBoardString(this.gameState.ascii());
             var src = update.from;          var dst = update.to;
