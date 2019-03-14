@@ -2,14 +2,19 @@ class Move {
     constructor(srcLoc,san) {
         this.san = san; //Standard Algebraic Notation
         this.src = srcLoc;
-        san = san.split("+")[0];
+        san = san.split("+")[0].split("#")[0];
         san = san.split("=");
         this.dst = string_to_loc(san[0].slice(-2));
-        console.log(san);
         if(san.length < 2) {
             this.promotion = null;
         } else {
             this.promotion = san[1];
+        }
+        if(this.san == 'O-O') {
+            console.log(this.src.i,this.src.j)
+            this.dst = new Loc(this.src.i + 2,this.src.j);
+        } else if(this.san == 'O-O-O') {
+            this.dst = new Loc(this.src.i - 2,this.src.j);
         }
     }
 

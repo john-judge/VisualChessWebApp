@@ -134,6 +134,21 @@ class Board {
             }
         }
     }
+
+    checkEndGame() {
+        if (this.gameState.in_checkmate()) {
+            var loser = this.gameState.turn();
+            if(loser == 'b') {
+                printReadout("White has won; but the true prize is the journey.");
+            } else {
+                printReadout("Black has won; but the true prize is the journey.");
+            }
+        }
+        else if (this.gameState.game_over()) {
+            printReadout("Neither player wins; but the true prize is the journey.");
+        }
+    }
+
     makeMove(move) {
         var update = this.gameState.move(move.san);
         this.moveListConsider = [];
@@ -147,6 +162,7 @@ class Board {
             this.printLoc(src);             this.printLoc(dst);
             this.updateBoard(oldSquares); // replace with quick minimal update
             printReadout("Last move " + move.moveRepr());
+            this.checkEndGame();
         } else {
             console.log("invalid move:" + move.san);
         }

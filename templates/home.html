@@ -9,7 +9,8 @@
         <header>
         <div class="home">
             <h2 class="logo"> Chess </h2>
-            <h3 id="readout"> It's a lovely afternoon for a clash of flesh and silicon. </h3>
+            <h3 id="readout">Ever wanted to visualize the
+            stream of conciousness of a chess machine?</h3>
 
 
 
@@ -42,7 +43,7 @@
             <p>
 
                 <p>
-                Chess move generation/validation library by
+                Chess move generation/validation open-source library courtesy of
                 <a href="https://github.com/jhlywa/chess.js/"> jhlywa
                 </a>
                 </p>
@@ -59,6 +60,11 @@
 
         <!-- script: Board class and methods -->
         <script src="{{ url_for('static',filename='/js/board_render.js') }}"></script>
+
+
+        <!-- script: Minimax algorithm with alpha-beta pruning (chess AI) -->
+        <script src="{{ url_for('static',filename='/js/minimax.js') }}"></script>
+
 
         <!-- https://github.com/jhlywa/chess.js/ -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
