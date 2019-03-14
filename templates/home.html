@@ -180,7 +180,6 @@
                     this.add_highlight(moves[i].dst);
                     moves[i].printMove();
                 }
-
             }
 
             printLoc(pcLoc) {
@@ -197,19 +196,36 @@
                 print_square(color,this.sideLen,sqLoc,pc);
             }
 
+            updateBoard(oldSquares) {
+                /* reprint only squares that have changed */
+                for(var i = 0; i < 8; i++) {
+                    for(var j = 0; j < 8; j++) {
+                        var pcLoc = new Loc(i,j);
+                        var ind = pcLoc.to_index();
+                        if(this.getPiece(pcLoc) != oldSquares.charAt(ind)) {
+                            this.printLoc(pcLoc);
+                        }
+                    }
+                }
+            }
+
+
             makeMove(move) {
                 var update = this.gameState.move(move.san);
                 this.moveListConsider = [];
                 this.selectedLoc = null;
                 this.clearHighlights();
                 if(update) {
+                    var oldSquares = this.squares;
                     this.squares = reformatBoardString(this.gameState.ascii());
 
                     var src = update.from;          var dst = update.to;
                     src = string_to_loc(src);       dst = string_to_loc(dst);
                     this.printLoc(src);             this.printLoc(dst);
 
-                    this.printBoard(); // replace with quick minimal update
+                    this.updateBoard(oldSquares); // replace with quick minimal update
+                } else {
+                    console.log("invalid move:" + move.san);
                 }
             }
 

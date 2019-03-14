@@ -2,6 +2,7 @@ class Move {
     constructor(srcLoc,san) {
         this.san = san; //Standard Algebraic Notation
         this.src = srcLoc;
+        san = san.split("+")[0];
         var potentialPromo = san.slice(-1);
         if(parseInt(potentialPromo)) {
             this.dst = string_to_loc(san.slice(-2));
@@ -11,6 +12,7 @@ class Move {
             this.promotion = potentialPromo;
         }
     }
+
     isMoveMatch(src,dst,promo) {
         /* is SRC -> DST and PROMO match this move's data? */
         return this.src.loc_equals(src) && this.dst.loc_equals(dst)
@@ -21,7 +23,6 @@ class Move {
         console.log(this.san + " " + this.src.to_string() +
         " -> " +this.dst.to_string());
     }
-
 }
 
 class Loc {
