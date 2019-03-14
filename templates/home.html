@@ -9,7 +9,7 @@
         <header>
         <div class="home">
             <h2 class="logo"> Chess </h2>
-            <h3> It's a lovely afternoon for a clash of carbon and silicon. </h3>
+            <h3> It's a lovely afternoon for a clash of flesh and silicon. </h3>
 
 
 
@@ -24,7 +24,7 @@
 
             <p align="center">
                 <canvas id="board" width="600" height="600" style="border:3px solid #000000" style="display:none">
-                    Your browser does not support canvas.
+                    Your browser does not support canvas. Get a new browser.
                 </canvas>
             <p>
 
@@ -46,6 +46,9 @@
          <!-- script: auxiliary board functions and LOC class -->
         <script src="{{ url_for('static',filename='/js/board_aux.js') }}"></script>
 
+        <!-- https://github.com/jhlywa/chess.js/ -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
+
         <script>
         const boardCanvas = document.getElementById('board');
         boardCanvas.style.display = "none";
@@ -56,19 +59,24 @@
 
         class Board {
 
-            constructor(squares,screen_size,light,dark) {
-                this.squares = squares; // 64 char string, view as 8x8 grid
-                this.highlights1 = 0; // two 32-bit integers, 1 is highlighted
+            constructor(screen_size,light,dark) {
+                this.gameState = new Chess();
+
+                /* 64 char string, view as 8x8 grid: */
+                this.squares = reformatBoardString(this.gameState.ascii());
+                /* two 32-bit integers, 1: highlighted */
+                this.highlights1 = 0;
                 this.highlights2 = 0;
                 this.selectedLoc = null;
+
                 this.playing = true;
                 this.screen_size = screen_size; // square
                 this.sideLen = screen_size / 8;
-                // colorings of squares:
+
+                /* colorings of squares/highlights: */
                 this.light = light;
                 this.dark = dark;
                 this.hliteColor = "#FF2828"; // hard coded: red highlights
-                //this.highlights = new Highlights();
             }
 
             isHighlighted(loc) {
@@ -160,42 +168,63 @@
                 }
             }
 
+            getMoveList(srcLoc) {
+                /* returns LOC to which can move from SRCLOC */
+                var srcStr = srcLoc.to_string();
+                return this.gameState.moves({square: srcStr});
+            }
+
+            highlightMoveList(moves) {
+                var leng = moves.length;
+                for(var i = 0; i < leng; i++) {
+                    this.add_highlight(string_to_loc(moves[i]));
+                }
+            }
+
             handle_click(clickPxLoc) {
                 var clickSqLoc = clickPxLoc.to_square(this.sideLen);
                 if ((this.selectedLoc) &&
                 (this.selectedLoc.loc_equals(clickSqLoc))) {
                     /* user has selected a move: */
 
-
                 } else {
                     /* user is considering new move src location */
                     this.clear_highlights();
                     this.add_highlight(clickSqLoc);
-                    // INSERT: add possible moves to highlight list
+                    var moveList = this.getMoveList(clickSqLoc);
+                    this.highlightMoveList(moveList);
                     this.print_highlights();
                     this.selectedLoc = clickSqLoc;
                 }
-
             }
+        }
 
-
-
+        function reformatBoardString(ascii) {
+            ascii = ascii.split("+")[2].split("\n");
+            var ret = "";
+            for(var i = 1; i < 9; i++) { // 1-index
+                var row = ascii[i].slice(4,28);
+                row = row.trim();
+                ret = ret + row.split("  ").join("");
+            }
+            if (ret.length != 64) {
+                console.log("error: board string length format err");
+            }
+            return ret;
         }
 
         function start_game() {
             document.getElementById("cover").style.display = "none";
             var b = document.getElementById('board');
             b.style.display = "block";
-            b.margin = "auto";
-            b.padding="0";
-            var light = "#DFE8EE";
-            var dark = "#2970A0";
-            var squares = "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr";
-            var gameBoard = new Board(squares,600,light,dark);
-            var hl = new Loc(3,4);
-            gameBoard.add_highlight(new Loc(3,4));
-            gameBoard.print_board();
+            b.margin = "auto";          var light = "#DFE8EE";
+            b.padding="0";              var dark = "#2970A0";
+
+            var gameBoard = new Board(600,light,dark);
+
             b.gameBoardState = gameBoard;
+            gameBoard.print_board();
+
         }
         </script>
 

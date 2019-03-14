@@ -33,6 +33,24 @@ class Loc {
         var y = Math.floor(this.j / sideLen);
         return new Loc(x,y);
     }
+
+    to_string() {
+        /* return two-char string*/
+        var ranks = ['a', 'b','c', 'd', 'e', 'f', 'g', 'h'];
+        return ranks[this.i] + (this.j + 1);
+    }
+
+}
+
+function string_to_loc(s) {
+    if (s.length > 2) {
+        s = s.slice(1,3);
+    }
+    var ranks = {'a':0, 'b':1, 'c':2, 'd':3,
+                'e':4, 'f':5, 'g':6, 'h':7};
+    var i = ranks[s.charAt(0)];
+    var j = parseInt(s.charAt(1)) - 1;
+    return new Loc(i,j);
 }
 
 function isLightColor(i,j) {
@@ -42,7 +60,7 @@ function isLightColor(i,j) {
 
 function get_piece_art_filepath(sq) {
     /* returns filepath to piece art, or "" if empty square */
-    if(sq == '-') {
+    if((sq == '.') || (sq == "-")) {
         return "";
     }
     var file_lookup = {
@@ -59,7 +77,13 @@ function get_piece_art_filepath(sq) {
         'q':"white_queen.png",
         'k':"white_king.png"
     };
-    return "/static/png/piece_art/" + file_lookup[sq];
+    var lookup = file_lookup[sq];
+    if (lookup != undefined) {
+        return "/static/png/piece_art/" + lookup;
+    } else {
+        return "";
+    }
+
 }
 
 function print_highlight(sideLen,topLeft,highLit) {
@@ -80,8 +104,9 @@ function print_square(color,sideLen,topLeft,pc) {
     var ctx = b.getContext('2d');
     ctx.fillStyle = color;
     ctx.fillRect(topLeft.i,topLeft.j,sideLen,sideLen);
-    if (pc != '-') {
-        var fp_image = get_piece_art_filepath(pc);
+    var fp_image = get_piece_art_filepath(pc);
+
+    if (fp_image) {
         var image = new Image();
         var b = document.getElementById('board');
         var ctx = b.getContext('2d');
