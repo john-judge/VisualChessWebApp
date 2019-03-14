@@ -1,9 +1,27 @@
-function get_click_location(canvas, event) {
-    var bounds = canvas.getBoundingClientRect();
-    var x = event.clientX - bounds.left;
-    var y = event.clientY - bounds.top;
-    var loc = new Loc(x,y);
-    return loc;
+class Move {
+    constructor(srcLoc,san) {
+        this.san = san; //Standard Algebraic Notation
+        this.src = srcLoc;
+        var potentialPromo = san.slice(-1);
+        if(parseInt(potentialPromo)) {
+            this.dst = string_to_loc(san.slice(-2));
+            this.promotion = null;
+        } else {
+            this.dst = string_to_loc(san.slice(-3,-1));
+            this.promotion = potentialPromo;
+        }
+    }
+    isMoveMatch(src,dst,promo) {
+        /* is SRC -> DST and PROMO match this move's data? */
+        return this.src.loc_equals(src) && this.dst.loc_equals(dst)
+            && (this.promotion == promo);
+    }
+
+    printMove() {
+        console.log(this.san + " " + this.src.to_string() +
+        " -> " +this.dst.to_string());
+    }
+
 }
 
 class Loc {
@@ -19,7 +37,7 @@ class Loc {
     }
 
     to_index() {
-        return this.i + this.j * 8;
+        return (this.i + (7 - this.j) * 8);
     }
 
     to_pixel(sideLen) {
@@ -39,7 +57,6 @@ class Loc {
         var ranks = ['a', 'b','c', 'd', 'e', 'f', 'g', 'h'];
         return ranks[this.i] + (this.j + 1);
     }
-
 }
 
 function string_to_loc(s) {
@@ -53,6 +70,14 @@ function string_to_loc(s) {
     return new Loc(i,j);
 }
 
+function get_click_location(canvas, event) {
+    var bounds = canvas.getBoundingClientRect();
+    var x = event.clientX - bounds.left;
+    var y = event.clientY - bounds.top;
+    var loc = new Loc(x,y);
+    return loc;
+}
+
 function isLightColor(i,j) {
     return (((i % 2 == 0) && (j % 2 == 0)) ||
                 (i % 2 == 1) && (j % 2 == 1));
@@ -62,20 +87,20 @@ function get_piece_art_filepath(sq) {
     /* returns filepath to piece art, or "" if empty square */
     if((sq == '.') || (sq == "-")) {
         return "";
-    }
+    } /* convention: white is capitalized letters */
     var file_lookup = {
-        'p':"white_pawn.png",
-        'P':"black_pawn.png",
-        'R':"black_rook.png",
-        'N':"black_knight.png",
-        'B':"black_bishop.png",
-        'Q':"black_queen.png",
-        'K':"black_king.png",
-        'r':"white_rook.png",
-        'n':"white_knight.png",
-        'b':"white_bishop.png",
-        'q':"white_queen.png",
-        'k':"white_king.png"
+        'P':"white_pawn.png",
+        'p':"black_pawn.png",
+        'r':"black_rook.png",
+        'n':"black_knight.png",
+        'b':"black_bishop.png",
+        'q':"black_queen.png",
+        'k':"black_king.png",
+        'R':"white_rook.png",
+        'N':"white_knight.png",
+        'B':"white_bishop.png",
+        'Q':"white_queen.png",
+        'K':"white_king.png"
     };
     var lookup = file_lookup[sq];
     if (lookup != undefined) {
@@ -83,7 +108,6 @@ function get_piece_art_filepath(sq) {
     } else {
         return "";
     }
-
 }
 
 function print_highlight(sideLen,topLeft,highLit) {

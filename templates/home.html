@@ -68,6 +68,7 @@
                 this.highlights1 = 0;
                 this.highlights2 = 0;
                 this.selectedLoc = null;
+                this.moveListConsider = [];
 
                 this.playing = true;
                 this.screen_size = screen_size; // square
@@ -88,7 +89,10 @@
                 return (this.highlights1 >>> ind) & 1;
             }
 
-            get_piece(loc) {
+            getPiece(loc) {
+                if(!loc) {
+                    return null;
+                }
                 return this.squares.charAt(loc.to_index());
             }
 
@@ -102,7 +106,7 @@
                 }
             }
 
-            clear_highlights() {
+            clearHighlights() {
                 /* remove highlights from list and print blank-outs*/
                 for(var i = 0; i < 8; i++) {
                     for(var j = 0; j < 8; j++) {
@@ -123,21 +127,11 @@
                 this.highlights2 = 0; this.highlights1 = 0;
             }
 
-            print_board() {
+            printBoard() {
                 for(var i = 0; i < 8; i++) {
                     for(var j = 0; j < 8; j++) {
                         var pcLoc = new Loc(i,j)
-                        var sqLoc = pcLoc.to_pixel(this.sideLen);
-                        var isLight = isLightColor(i,j);
-                        var color;
-                        if(isLight) {
-                            color = this.light;
-                        } else {
-                            color = this.dark;
-                        }
-                        var pc = this.get_piece(pcLoc);
-                        var highLit = "";
-                        print_square(color,this.sideLen,sqLoc,pc);
+                        this.printLoc(pcLoc);
                         if(this.isHighlighted(pcLoc)) {
                             print_highlight(this.sideLen,sqLoc,this.hliteColor);
                         }
@@ -145,7 +139,7 @@
                 }
             }
 
-            print_highlights() {
+            printHighlights() {
                 /* (instead of rendering and printing whole board) update only new highlights */
                 for(var i = 0; i < 8; i++) {
                     for(var j = 0; j < 8; j++) {
@@ -158,7 +152,7 @@
                         } else {
                             color = this.dark;
                         }
-                        var pc = this.get_piece(pcLoc);
+                        var pc = this.getPiece(pcLoc);
                         var highLit = "";
 
                         if(this.isHighlighted(pcLoc)) {
@@ -171,35 +165,91 @@
             getMoveList(srcLoc) {
                 /* returns LOC to which can move from SRCLOC */
                 var srcStr = srcLoc.to_string();
-                return this.gameState.moves({square: srcStr});
+                var mvSans = this.gameState.moves({square: srcStr});
+                this.moveListConsider = [];
+                for(var i = 0; i < mvSans.length; i++) {
+                    this.moveListConsider.push(new Move(srcLoc,mvSans[i]));
+                }
+                return this.moveListConsider;
             }
 
             highlightMoveList(moves) {
+                console.log("Available moves:")
                 var leng = moves.length;
                 for(var i = 0; i < leng; i++) {
-                    this.add_highlight(string_to_loc(moves[i]));
+                    this.add_highlight(moves[i].dst);
+                    moves[i].printMove();
+                }
+
+            }
+
+            printLoc(pcLoc) {
+                var sqLoc = pcLoc.to_pixel(this.sideLen);
+                var isLight = isLightColor(pcLoc.i,pcLoc.j);
+                var color;
+                if(isLight) {
+                    color = this.light;
+                } else {
+                    color = this.dark;
+                }
+                var pc = this.getPiece(pcLoc);
+                var highLit = "";
+                print_square(color,this.sideLen,sqLoc,pc);
+            }
+
+            makeMove(move) {
+                var update = this.gameState.move(move.san);
+                this.moveListConsider = [];
+                this.selectedLoc = null;
+                this.clearHighlights();
+                if(update) {
+                    this.squares = reformatBoardString(this.gameState.ascii());
+
+                    var src = update.from;          var dst = update.to;
+                    src = string_to_loc(src);       dst = string_to_loc(dst);
+                    this.printLoc(src);             this.printLoc(dst);
+
+                    this.printBoard(); // replace with quick minimal update
                 }
             }
 
+            getMoveListMatch(srcLoc,dstLoc) {
+                /* search this.moveListConsider for matches; else return null */
+                if(!this.getPiece(srcLoc)) {
+                    return null;
+                }
+                var len = this.moveListConsider.length;
+                for(var i = 0; i < len; i++) {
+                    var mv = this.moveListConsider[i];
+                     if (mv.isMoveMatch(srcLoc,dstLoc)) {
+                        return mv;
+                    }
+                }
+                return null;
+            }
             handle_click(clickPxLoc) {
                 var clickSqLoc = clickPxLoc.to_square(this.sideLen);
-                if ((this.selectedLoc) &&
-                (this.selectedLoc.loc_equals(clickSqLoc))) {
+                var clickStr = clickSqLoc.to_string();
+                var move = this.getMoveListMatch(this.selectedLoc,clickSqLoc);
+
+                if(move) {
                     /* user has selected a move: */
+                    this.makeMove(move);
 
                 } else {
                     /* user is considering new move src location */
-                    this.clear_highlights();
+                    this.clearHighlights();
                     this.add_highlight(clickSqLoc);
                     var moveList = this.getMoveList(clickSqLoc);
                     this.highlightMoveList(moveList);
-                    this.print_highlights();
+                    this.printHighlights();
                     this.selectedLoc = clickSqLoc;
                 }
             }
         }
 
         function reformatBoardString(ascii) {
+            console.log(ascii);
             ascii = ascii.split("+")[2].split("\n");
             var ret = "";
             for(var i = 1; i < 9; i++) { // 1-index
@@ -223,7 +273,7 @@
             var gameBoard = new Board(600,light,dark);
 
             b.gameBoardState = gameBoard;
-            gameBoard.print_board();
+            gameBoard.printBoard();
 
         }
         </script>
