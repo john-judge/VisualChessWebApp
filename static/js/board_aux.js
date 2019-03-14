@@ -3,25 +3,34 @@ class Move {
         this.san = san; //Standard Algebraic Notation
         this.src = srcLoc;
         san = san.split("+")[0];
-        var potentialPromo = san.slice(-1);
-        if(parseInt(potentialPromo)) {
-            this.dst = string_to_loc(san.slice(-2));
+        san = san.split("=");
+        this.dst = string_to_loc(san[0].slice(-2));
+        console.log(san);
+        if(san.length < 2) {
             this.promotion = null;
         } else {
-            this.dst = string_to_loc(san.slice(-3,-1));
-            this.promotion = potentialPromo;
+            this.promotion = san[1];
         }
+    }
+
+    areLocMatches(src,dst) {
+        return this.src.loc_equals(src) && this.dst.loc_equals(dst);
     }
 
     isMoveMatch(src,dst,promo) {
         /* is SRC -> DST and PROMO match this move's data? */
-        return this.src.loc_equals(src) && this.dst.loc_equals(dst)
-            && (this.promotion == promo);
+        return areLocMatches(src,dst) && (this.promotion == promo);
     }
 
-    printMove() {
-        console.log(this.san + " " + this.src.to_string() +
-        " -> " +this.dst.to_string());
+    moveRepr() {
+        return ("(" + this.san + "): <br /> from " +
+        this.src.to_string() +
+        " to " +
+        this.dst.to_string());
+    }
+
+    isPromotion() {
+        return (this.promotion != null);
     }
 }
 
@@ -140,4 +149,36 @@ function print_square(color,sideLen,topLeft,pc) {
             ctx.drawImage(image,topLeft.i,topLeft.j,sideLen,sideLen);
         };
     }
+}
+
+function reformatBoardString(ascii) {
+    console.log(ascii);
+    ascii = ascii.split("+")[2].split("\n");
+    var ret = "";
+    for(var i = 1; i < 9; i++) { // 1-index
+        var row = ascii[i].slice(4,28);
+        row = row.trim();
+        ret = ret + row.split("  ").join("");
+    }
+    if (ret.length != 64) {
+        console.log("error: board string length format err");
+    }
+    return ret;
+}
+
+function start_game() {
+    var promButton = document.getElementById('promoSelect');
+    promButton.style.display = "none";
+    var b = document.getElementById('board');
+    b.style.display = "block";
+    b.margin = "auto";          var light = "#DFE8EE";
+    b.padding="0";              var dark = "#2970A0";
+    var gameBoard = new Board(600,light,dark);
+    b.gameBoardState = gameBoard;
+    gameBoard.printBoard();
+}
+
+function printReadout(message) {
+    var readout = document.getElementById('readout');
+    readout.innerHTML = message;
 }

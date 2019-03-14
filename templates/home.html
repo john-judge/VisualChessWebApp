@@ -9,7 +9,7 @@
         <header>
         <div class="home">
             <h2 class="logo"> Chess </h2>
-            <h3> It's a lovely afternoon for a clash of flesh and silicon. </h3>
+            <h3 id="readout"> It's a lovely afternoon for a clash of flesh and silicon. </h3>
 
 
 
@@ -17,9 +17,22 @@
             <h3>
             <button type="button" onclick="start_game()">New Game</button>
 
+            <!-- four-button Promotion input -->
             <p> </p>
-
-            <img id="cover" src='{{ url_for('static',filename="png/cover_photo.jpg") }}' style="width:1000px">
+            <p id="promoSelect" style = "display:none">
+                <button type="button"
+                onclick="boardCanvas.gameBoardState.handlePromotion(0)" >
+                Queen </button>
+                <button type="button"
+                onclick="boardCanvas.gameBoardState.handlePromotion(2)" >
+                Bishop </button>
+                <button type="button"
+                onclick="boardCanvas.gameBoardState.handlePromotion(3)" >
+                Knight </button>
+                <button type="button"
+                onclick="boardCanvas.gameBoardState.handlePromotion(1)" >
+                Rook </button>
+             </p>
             </h3>
 
             <p align="center">
@@ -28,14 +41,12 @@
                 </canvas>
             <p>
 
+                <p>
+                Chess move generation/validation library by
+                <a href="https://github.com/jhlywa/chess.js/"> jhlywa
+                </a>
+                </p>
 
-            <strong><nav>
-                <ul class="menu">
-
-                    <li> <a href="{{ url_for('about') }}">About</a></li>
-
-                </ul>
-            </nav></strong>
             <br> </br>
         </div>
         <div class="container">
@@ -43,255 +54,23 @@
             {% endblock %}
         </div>
         </header>
-         <!-- script: auxiliary board functions and LOC class -->
+         <!-- script: auxiliary board functions, Move and Loc classes -->
         <script src="{{ url_for('static',filename='/js/board_aux.js') }}"></script>
+
+        <!-- script: Board class and methods -->
+        <script src="{{ url_for('static',filename='/js/board_render.js') }}"></script>
 
         <!-- https://github.com/jhlywa/chess.js/ -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
 
         <script>
+        start_game();
         const boardCanvas = document.getElementById('board');
-        boardCanvas.style.display = "none";
         boardCanvas.addEventListener('click', function(event) {
             var clickedPxLoc = get_click_location(boardCanvas,event);
             boardCanvas.gameBoardState.handle_click(clickedPxLoc);
         } );
 
-        class Board {
-
-            constructor(screen_size,light,dark) {
-                this.gameState = new Chess();
-
-                /* 64 char string, view as 8x8 grid: */
-                this.squares = reformatBoardString(this.gameState.ascii());
-                /* two 32-bit integers, 1: highlighted */
-                this.highlights1 = 0;
-                this.highlights2 = 0;
-                this.selectedLoc = null;
-                this.moveListConsider = [];
-
-                this.playing = true;
-                this.screen_size = screen_size; // square
-                this.sideLen = screen_size / 8;
-
-                /* colorings of squares/highlights: */
-                this.light = light;
-                this.dark = dark;
-                this.hliteColor = "#FF2828"; // hard coded: red highlights
-            }
-
-            isHighlighted(loc) {
-                /* return the highlight state of LOC */
-                var ind = loc.to_index();
-                if (ind > 31) {
-                    return (this.highlights2 >>> ind) & 1;
-                }
-                return (this.highlights1 >>> ind) & 1;
-            }
-
-            getPiece(loc) {
-                if(!loc) {
-                    return null;
-                }
-                return this.squares.charAt(loc.to_index());
-            }
-
-            add_highlight(loc) {
-                /* set hi lite state of LOC */
-                var ind = loc.to_index();
-                if (ind > 31) {
-                    this.highlights2 = this.highlights2 | (1 << ind);
-                } else {
-                    this.highlights1 = this.highlights1 | (1 << ind);
-                }
-            }
-
-            clearHighlights() {
-                /* remove highlights from list and print blank-outs*/
-                for(var i = 0; i < 8; i++) {
-                    for(var j = 0; j < 8; j++) {
-                        var pcLoc = new Loc(i,j)
-                        var sqLoc = pcLoc.to_pixel(this.sideLen);
-                        var isLight = isLightColor(i,j);
-                        var color;
-                        if(isLight) {
-                            color = this.light;
-                        } else {
-                            color = this.dark;
-                        }
-                        if(this.isHighlighted(pcLoc)) {
-                            print_highlight(this.sideLen,sqLoc,color);
-                        }
-                    }
-                }
-                this.highlights2 = 0; this.highlights1 = 0;
-            }
-
-            printBoard() {
-                for(var i = 0; i < 8; i++) {
-                    for(var j = 0; j < 8; j++) {
-                        var pcLoc = new Loc(i,j)
-                        this.printLoc(pcLoc);
-                        if(this.isHighlighted(pcLoc)) {
-                            print_highlight(this.sideLen,sqLoc,this.hliteColor);
-                        }
-                    }
-                }
-            }
-
-            printHighlights() {
-                /* (instead of rendering and printing whole board) update only new highlights */
-                for(var i = 0; i < 8; i++) {
-                    for(var j = 0; j < 8; j++) {
-                        var pcLoc = new Loc(i,j)
-                        var sqLoc = pcLoc.to_pixel(this.sideLen);
-                        var isLight = isLightColor(i,j);
-                        var color;
-                        if(isLight) {
-                            color = this.light;
-                        } else {
-                            color = this.dark;
-                        }
-                        var pc = this.getPiece(pcLoc);
-                        var highLit = "";
-
-                        if(this.isHighlighted(pcLoc)) {
-                            print_highlight(this.sideLen,sqLoc,this.hliteColor);
-                        }
-                    }
-                }
-            }
-
-            getMoveList(srcLoc) {
-                /* returns LOC to which can move from SRCLOC */
-                var srcStr = srcLoc.to_string();
-                var mvSans = this.gameState.moves({square: srcStr});
-                this.moveListConsider = [];
-                for(var i = 0; i < mvSans.length; i++) {
-                    this.moveListConsider.push(new Move(srcLoc,mvSans[i]));
-                }
-                return this.moveListConsider;
-            }
-
-            highlightMoveList(moves) {
-                console.log("Available moves:")
-                var leng = moves.length;
-                for(var i = 0; i < leng; i++) {
-                    this.add_highlight(moves[i].dst);
-                    moves[i].printMove();
-                }
-            }
-
-            printLoc(pcLoc) {
-                var sqLoc = pcLoc.to_pixel(this.sideLen);
-                var isLight = isLightColor(pcLoc.i,pcLoc.j);
-                var color;
-                if(isLight) {
-                    color = this.light;
-                } else {
-                    color = this.dark;
-                }
-                var pc = this.getPiece(pcLoc);
-                var highLit = "";
-                print_square(color,this.sideLen,sqLoc,pc);
-            }
-
-            updateBoard(oldSquares) {
-                /* reprint only squares that have changed */
-                for(var i = 0; i < 8; i++) {
-                    for(var j = 0; j < 8; j++) {
-                        var pcLoc = new Loc(i,j);
-                        var ind = pcLoc.to_index();
-                        if(this.getPiece(pcLoc) != oldSquares.charAt(ind)) {
-                            this.printLoc(pcLoc);
-                        }
-                    }
-                }
-            }
-
-
-            makeMove(move) {
-                var update = this.gameState.move(move.san);
-                this.moveListConsider = [];
-                this.selectedLoc = null;
-                this.clearHighlights();
-                if(update) {
-                    var oldSquares = this.squares;
-                    this.squares = reformatBoardString(this.gameState.ascii());
-
-                    var src = update.from;          var dst = update.to;
-                    src = string_to_loc(src);       dst = string_to_loc(dst);
-                    this.printLoc(src);             this.printLoc(dst);
-
-                    this.updateBoard(oldSquares); // replace with quick minimal update
-                } else {
-                    console.log("invalid move:" + move.san);
-                }
-            }
-
-            getMoveListMatch(srcLoc,dstLoc) {
-                /* search this.moveListConsider for matches; else return null */
-                if(!this.getPiece(srcLoc)) {
-                    return null;
-                }
-                var len = this.moveListConsider.length;
-                for(var i = 0; i < len; i++) {
-                    var mv = this.moveListConsider[i];
-                     if (mv.isMoveMatch(srcLoc,dstLoc)) {
-                        return mv;
-                    }
-                }
-                return null;
-            }
-            handle_click(clickPxLoc) {
-                var clickSqLoc = clickPxLoc.to_square(this.sideLen);
-                var clickStr = clickSqLoc.to_string();
-                var move = this.getMoveListMatch(this.selectedLoc,clickSqLoc);
-
-                if(move) {
-                    /* user has selected a move: */
-                    this.makeMove(move);
-
-                } else {
-                    /* user is considering new move src location */
-                    this.clearHighlights();
-                    this.add_highlight(clickSqLoc);
-                    var moveList = this.getMoveList(clickSqLoc);
-                    this.highlightMoveList(moveList);
-                    this.printHighlights();
-                    this.selectedLoc = clickSqLoc;
-                }
-            }
-        }
-
-        function reformatBoardString(ascii) {
-            console.log(ascii);
-            ascii = ascii.split("+")[2].split("\n");
-            var ret = "";
-            for(var i = 1; i < 9; i++) { // 1-index
-                var row = ascii[i].slice(4,28);
-                row = row.trim();
-                ret = ret + row.split("  ").join("");
-            }
-            if (ret.length != 64) {
-                console.log("error: board string length format err");
-            }
-            return ret;
-        }
-
-        function start_game() {
-            document.getElementById("cover").style.display = "none";
-            var b = document.getElementById('board');
-            b.style.display = "block";
-            b.margin = "auto";          var light = "#DFE8EE";
-            b.padding="0";              var dark = "#2970A0";
-
-            var gameBoard = new Board(600,light,dark);
-
-            b.gameBoardState = gameBoard;
-            gameBoard.printBoard();
-
-        }
         </script>
 
     </body>
