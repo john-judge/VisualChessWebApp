@@ -24,8 +24,10 @@ class Board {
         this.hliteEnemy = "#FFF728" /* yellow enemy highlights */
     }
 
-    AIPlayer() {
-        return this.machinePlayer(this);
+    async AIPlayer() {
+        let mv = await this.machinePlayer(this);
+        console.log("ai player:" + mv);
+        return mv;
     }
 
     scoreEvalUpdate(update,isBlack) {
@@ -172,8 +174,9 @@ class Board {
         }
     }
 
-    makeMove(move) {
-        var update = this.gameState.move(move.san);
+    makeMove(move,isSan=false) {
+        var update =
+        (isSan ? this.gameState.move(move) : this.gameState.move(move.san));
         this.moveListConsider = [];
         this.selectedLoc = null;
         this.clearHighlights();
@@ -184,25 +187,23 @@ class Board {
 
             this.score += this.scoreEvalUpdate(update,true);
             console.log("score:" + this.score);
-
-            printReadout("Last move " + move.moveRepr());
+            if(!isSan) {
+                printReadout("Last move " + move.moveRepr());
+            }
             this.checkEndGame();
         } else {
-            console.log("invalid move:" + move.san);
+            console.log("invalid move:" + (isSan ? move :move.san));
         }
     }
+
 
     undoMove() {
         var update = this.gameState.undo();
         if(update) {
-            var oldSquares = this.square;
+            var oldSquares = this.squares;
             this.squares = reformatBoardString(this.gameState.ascii());
             this.updateBoard(oldSquares); // quick minimal render
-
             this.score -= this.scoreEvalUpdate(update,true);
-            console.log("score:" + this.score);
-
-            printReadout("Walking back move " + move.moveRepr());
         }
     }
 
@@ -274,7 +275,7 @@ class Board {
 
     async playMachineTurn() {
         await sleep(250);
-        var moveStr = this.AIPlayer();
+        let moveStr = await this.AIPlayer();
         var update = this.gameState.move(moveStr);
 
         /*add in highlight tracers later */

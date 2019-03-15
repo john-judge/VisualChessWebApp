@@ -19,45 +19,48 @@ function machineRandom(boardState) {
     return allMoves[randInt];
 }
 
-function minimax(boardState,depth,isMaxPlayer) {
+async function minimax(boardState,depth,isMaxPlayer,sleepTime=5) {
     /* return minimax best move. */
     if((depth == 0) || boardState.gameState.game_over()) {
-        return [boardState.score,null];
+        return [boardState.score, null];
     }
-    var allMoves = gameState.moves();
+    var allMoves = boardState.gameState.moves();
     var currMinMax, currMove;
     if(isMaxPlayer) {
         currMinMax = -999;
         for(var i = 0; i < allMoves.length; i++) {
-            var moveVal =
-            minimax(boardState.makeMove(allMoves[i]),depth-1, false)[0];
-
-            if (moveVal > currMinMax) {
+            boardState.makeMove(allMoves[i],san=true);
+            let moveVal = await minimax(boardState,depth-1, false);
+            await sleep(sleepTime);
+            if (moveVal[0] > currMinMax) {
                 currMinMax = moveVal;
                 currMove = allMoves[i];
             }
+            boardState.undoMove();
+            await sleep(sleepTime);
         }
-        boardState.undoMove();
         return [currMinMax, currMove];
     } else {
         currMinMax = 999;
         for(var i = 0; i < allMoves.length; i++) {
-            var moveVal =
-            minimax(boardState.makeMove(allMoves[i]),depth-1, true)[0];
-
-            if (moveVal < currMinMax) {
+            boardState.makeMove(allMoves[i],san=true);
+            let moveVal = await minimax(boardState,depth-1, true);
+            await sleep(sleepTime);
+            if (moveVal[0] < currMinMax) {
                 currMinMax = moveVal;
                 currMove = allMoves[i];
             }
+            boardState.undoMove();
+            await sleep(sleepTime);
         }
-        boardState.undoMove();
         return [currMinMax,currMove];
     }
 }
 
-function machineMinimax(boardState) {
+async function machineMinimax(boardState,ply=3) {
     /* chess AI: vanilla minimax */
-    return minimax(boardState,1,true)[1];
+    let minimaxed = await minimax(boardState,ply,true);
+    return minimaxed[1];
 }
 
 
