@@ -11,7 +11,6 @@ class Move {
             this.promotion = san[1];
         }
         if(this.san == 'O-O') {
-            console.log(this.src.i,this.src.j)
             this.dst = new Loc(this.src.i + 2,this.src.j);
         } else if(this.san == 'O-O-O') {
             this.dst = new Loc(this.src.i - 2,this.src.j);
@@ -157,7 +156,6 @@ function print_square(color,sideLen,topLeft,pc) {
 }
 
 function reformatBoardString(ascii) {
-    console.log(ascii);
     ascii = ascii.split("+")[2].split("\n");
     var ret = "";
     for(var i = 1; i < 9; i++) { // 1-index
@@ -182,7 +180,7 @@ async function start_game() {
     b.style.display = "block";
     b.margin = "auto";          var light = "#DFE8EE";
     b.padding="0";              var dark = "#2970A0";
-    var gameBoard = new Board(600,light,dark,staticScore,machineRandom);
+    var gameBoard = new Board(600,light,dark,staticScoreUpdate,machineRandom);
     b.gameBoardState = gameBoard;
     gameBoard.printBoard();
     await sleep(500);

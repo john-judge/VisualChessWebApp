@@ -1,13 +1,15 @@
-function staticScore(pc) {
+function staticScoreUpdate(update,isBlack,promo) {
     /* return score change to white player by loss of PC */
-    if (!pc || (pc == '.')) {
-        return 0;
+    var pcCaptured = update.captured;
+    var pieceScores = {'p':1, 'r':5, 'n':3, 'b':3, 'q':9, 'k':99};
+    var capScore = (!pcCaptured ? 0 :
+    (pieceScores[pcCaptured] * (isBlack ? -1 : 1)));
+    var promScore = 0;
+    if(update.flags.includes("p")) {
+        console.log("promo to " + promo);
+        promScore = (pieceScores[promo] - 1) * (isBlack ? -1 : 1) ;
     }
-    var pieceScores = {
-        'P':1,  'r':-5, 'n':-3, 'b':-3, 'q':9,  'k':-99,
-        'p':-1, 'R':5,  'N':3,  'B':3,  'Q':9,  'K':99
-    };
-    return pieceScores[pc] * -1;
+    return capScore + promScore;
 }
 
 

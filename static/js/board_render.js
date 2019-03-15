@@ -28,8 +28,13 @@ class Board {
         return this.machinePlayer(this.gameState);
     }
 
-    scoreEvalFn(pc) {
-        return this.scoreFn(pc);
+    scoreEvalUpdate(update,isBlack) {
+        var prevPc = update.piece;
+        var currPc = this.getPiece(string_to_loc(update.to)).toLowerCase();
+        if(prevPc == currPc) {
+            currPc = null; // no promotion
+        }
+        return this.scoreFn(update,isBlack,currPc);
     }
 
     isHighlighted(loc) {
@@ -120,11 +125,9 @@ class Board {
     }
 
     highlightMoveList(moves) {
-        console.log("Available moves:")
         var leng = moves.length;
         for(var i = 0; i < leng; i++) {
             this.addHighlight(moves[i].dst);
-            console.log(moves[i].moveRepr());
         }
     }
 
@@ -175,12 +178,13 @@ class Board {
         this.selectedLoc = null;
         this.clearHighlights();
         if(update) {
-            /* first track score change */
-            this.score += this.scoreEvalFn(this.getPiece(move.dst));
-            console.log("score:" + this.score);
             var oldSquares = this.squares;
             this.squares = reformatBoardString(this.gameState.ascii());
             this.updateBoard(oldSquares); // quick minimal render
+
+            this.score += this.scoreEvalUpdate(update,true);
+            console.log("score:" + this.score);
+
             printReadout("Last move " + move.moveRepr());
             this.checkEndGame();
         } else {
@@ -224,33 +228,33 @@ class Board {
 
     handleClick(clickPxLoc) {
         if(this.gameState.turn() == 'b') {
-        var clickSqLoc = clickPxLoc.to_square(this.sideLen);
-        var clickStr = clickSqLoc.to_string();
-        var moves = this.getMoveListMatches(this.selectedLoc,clickSqLoc);
-        if(moves && moves.length > 0) {
-            /* user has selected a move: */
-            if(moves.length == 4 || moves[0].isPromotion()) {
-                printReadout("Pawn promotion: " +
-                "Selected desired piece type.");
-                var promButton = document.getElementById('promoSelect');
-                promButton.style.display = "block";
-                this.possiblePromos = moves;
-            } else {
-                this.makeMove(moves[0]);
-                if(this.gameState.turn() != 'b') {
-                    this.playMachineTurn();
+            var clickSqLoc = clickPxLoc.to_square(this.sideLen);
+            var clickStr = clickSqLoc.to_string();
+            var moves = this.getMoveListMatches(this.selectedLoc,clickSqLoc);
+            if(moves && moves.length > 0) {
+                /* user has selected a move: */
+                if(moves.length == 4 || moves[0].isPromotion()) {
+                    printReadout("Pawn promotion: " +
+                    "Selected desired piece type.");
+                    var promButton = document.getElementById('promoSelect');
+                    promButton.style.display = "block";
+                    this.possiblePromos = moves;
+                } else {
+                    this.makeMove(moves[0]);
+                    if(this.gameState.turn() != 'b') {
+                        this.playMachineTurn();
+                    }
                 }
-            }
 
-        } else {
-            /* user is considering new move src location */
-            this.clearHighlights();
-            this.addHighlight(clickSqLoc);
-            var moveList = this.getMoveList(clickSqLoc);
-            this.highlightMoveList(moveList);
-            this.printHighlights();
-            this.selectedLoc = clickSqLoc;
-        }
+            } else {
+                /* user is considering new move src location */
+                this.clearHighlights();
+                this.addHighlight(clickSqLoc);
+                var moveList = this.getMoveList(clickSqLoc);
+                this.highlightMoveList(moveList);
+                this.printHighlights();
+                this.selectedLoc = clickSqLoc;
+            }
         }
     }
 
@@ -259,15 +263,10 @@ class Board {
         var moveStr = this.AIPlayer();
         var update = this.gameState.move(moveStr);
 
-        /*
-        this.selectedLoc = null;
-        this.clearHighlights();*/ //add in highlight tracers later
+        /*add in highlight tracers later */
         if(update) {
             var srcLoc = string_to_loc(update.from);
             var dstLoc = string_to_loc(update.to);
-
-            this.score += this.scoreEvalFn(this.getPiece(dstLoc));
-            console.log("score:" + this.score);
 
             var move = new Move(srcLoc,moveStr);
             this.addHighlight(srcLoc);
@@ -276,6 +275,10 @@ class Board {
             var oldSquares = this.squares;
             this.squares = reformatBoardString(this.gameState.ascii());
             this.updateBoard(oldSquares);
+
+            this.score += this.scoreEvalUpdate(update,false);
+            console.log("score:" + this.score);
+
             this.printHighlights(1);
             printReadout("Last move (white) " + move.moveRepr());
             this.checkEndGame();
