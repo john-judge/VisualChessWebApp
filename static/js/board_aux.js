@@ -173,20 +173,6 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve,ms));
 }
 
-async function start_game() {
-    var promButton = document.getElementById('promoSelect');
-    promButton.style.display = "none";
-    var b = document.getElementById('board');
-    b.style.display = "block";
-    b.margin = "auto";          var light = "#DFE8EE";
-    b.padding="0";              var dark = "#2970A0";
-    var gameBoard = new Board(600,light,dark,staticScoreUpdate,machineRandom);
-    b.gameBoardState = gameBoard;
-    gameBoard.printBoard();
-    await sleep(500);
-    gameBoard.playMachineTurn();
-}
-
 function printReadout(message) {
     var readout = document.getElementById('readout');
     readout.innerHTML = message;

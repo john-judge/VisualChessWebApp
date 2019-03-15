@@ -25,7 +25,7 @@ class Board {
     }
 
     AIPlayer() {
-        return this.machinePlayer(this.gameState);
+        return this.machinePlayer(this);
     }
 
     scoreEvalUpdate(update,isBlack) {
@@ -189,6 +189,20 @@ class Board {
             this.checkEndGame();
         } else {
             console.log("invalid move:" + move.san);
+        }
+    }
+
+    undoMove() {
+        var update = this.gameState.undo();
+        if(update) {
+            var oldSquares = this.square;
+            this.squares = reformatBoardString(this.gameState.ascii());
+            this.updateBoard(oldSquares); // quick minimal render
+
+            this.score -= this.scoreEvalUpdate(update,true);
+            console.log("score:" + this.score);
+
+            printReadout("Walking back move " + move.moveRepr());
         }
     }
 

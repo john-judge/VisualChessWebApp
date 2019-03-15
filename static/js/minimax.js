@@ -12,14 +12,55 @@ function staticScoreUpdate(update,isBlack,promo) {
     return capScore + promScore;
 }
 
-
-function machineRandom(gameState) {
+function machineRandom(boardState) {
     /* a chess AI that selects moves randomly */
-    var allMoves = gameState.moves();
+    var allMoves = boardState.gameState.moves();
     var randInt = Math.floor(Math.random() * allMoves.length);
     return allMoves[randInt];
 }
 
-function machineGreedy(gameState) {
-    /* a chess AI that selects (randomly) among highest scoring moves */
+function minimax(boardState,depth,isMaxPlayer) {
+    /* return minimax best move. */
+    if((depth == 0) || boardState.gameState.game_over()) {
+        return [boardState.score,null];
+    }
+    var allMoves = gameState.moves();
+    var currMinMax, currMove;
+    if(isMaxPlayer) {
+        currMinMax = -999;
+        for(var i = 0; i < allMoves.length; i++) {
+            var moveVal =
+            minimax(boardState.makeMove(allMoves[i]),depth-1, false)[0];
+
+            if (moveVal > currMinMax) {
+                currMinMax = moveVal;
+                currMove = allMoves[i];
+            }
+        }
+        boardState.undoMove();
+        return [currMinMax, currMove];
+    } else {
+        currMinMax = 999;
+        for(var i = 0; i < allMoves.length; i++) {
+            var moveVal =
+            minimax(boardState.makeMove(allMoves[i]),depth-1, true)[0];
+
+            if (moveVal < currMinMax) {
+                currMinMax = moveVal;
+                currMove = allMoves[i];
+            }
+        }
+        boardState.undoMove();
+        return [currMinMax,currMove];
+    }
 }
+
+function machineMinimax(boardState) {
+    /* chess AI: vanilla minimax */
+    return minimax(boardState,1,true)[1];
+}
+
+
+
+
+
