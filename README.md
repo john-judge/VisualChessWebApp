@@ -1,6 +1,6 @@
 # Web GUI for chess AI visualization
 
-Source code for web app <a href="http://chessrpjj.pythonanywhere.com/"> "Watch My Chess Moves" </a>: for visualizing the stream of conciousness of a chess machine.
+Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Watch My Chess Moves" </a>: for visualizing the stream of conciousness of a chess machine.
 
 
 
