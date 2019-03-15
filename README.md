@@ -1,8 +1,8 @@
 # Web GUI for chess AI visualization
 
-Web app for visualizing the stream of conciousness of a chess machine.
+Source code for web app <a href="http://chessrpjj.pythonanywhere.com/"> "Watch My Chess Moves" </a>: for visualizing the stream of conciousness of a chess machine.
 
-This site is deployed using PythonAnywhere: <a href="http://chessrpjj.pythonanywhere.com/"> "Watch My Chess Moves" </a>
+
 
 Currently, you can visualize the tree in its board states of a 3-ply vanilla minimax, as the machine iterates through all possibilities and searches for the maximum score assuming the opponent (human input) will attempt to minimize the score.
 
@@ -10,10 +10,12 @@ Currently, you can visualize the tree in its board states of a 3-ply vanilla min
 
 
 
-  <p>
+  <p> 
                 Chess move generation and validation library: courtesy of
                 <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
-                <br> Read more about chess AI:
+                <br> 
+                This site is deployed using PythonAnywhere.com.
+                Informative sources on chess AI:
                 <a href="https://en.wikipedia.org/wiki/Evaluation_function#In_chess">
                 static evaluation</a>,
                 <a href="https://en.wikipedia.org/wiki/Minimax">minimax</a> and
