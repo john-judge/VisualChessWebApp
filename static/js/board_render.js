@@ -15,7 +15,12 @@ class Board {
         /*score evaluation; positive means white is winning*/
         this.score = 0;
         this.scoreFn = score_fn;
+
+        /* AI options, verbosity, depth, algorithm type */
         this.machinePlayer = machinePlayer;
+        this.showGraphics = true;
+        this.minimaxPly = 3;
+        this.sleepTime = 5; // milliseconds
 
         /* colorings of squares/highlights: */
         this.light = light;
@@ -24,9 +29,20 @@ class Board {
         this.hliteEnemy = "#FFF728" /* yellow enemy highlights */
     }
 
+    setSleepTime(sleepTime) {
+        this.sleepTime = sleepTime;
+    }
+
+    setMinimaxPly(ply) {
+        this.minimaxPly = ply;
+    }
+
+    setGraphics(isShown) {
+        this.showGraphics = isShown;
+    }
+
     async AIPlayer() {
         let mv = await this.machinePlayer(this);
-        console.log("ai player:" + mv);
         return mv;
     }
 
@@ -174,19 +190,21 @@ class Board {
         }
     }
 
-    makeMove(move,isSan=false) {
+    makeMove(move,isSan=false,showGraphics=true) {
         var update =
         (isSan ? this.gameState.move(move) : this.gameState.move(move.san));
         this.moveListConsider = [];
         this.selectedLoc = null;
-        this.clearHighlights();
+        if(showGraphics) {this.clearHighlights();}
         if(update) {
-            var oldSquares = this.squares;
-            this.squares = reformatBoardString(this.gameState.ascii());
-            this.updateBoard(oldSquares); // quick minimal render
-
             this.score += this.scoreEvalUpdate(update,true);
             console.log("score:" + this.score);
+            if(showGraphics) {
+                var oldSquares = this.squares;
+                this.squares = reformatBoardString(this.gameState.ascii());
+                this.updateBoard(oldSquares); // quick minimal render
+            }
+
             if(!isSan) {
                 printReadout("Last move " + move.moveRepr());
             }
@@ -197,12 +215,14 @@ class Board {
     }
 
 
-    undoMove() {
+    undoMove(showGraphics=true) {
         var update = this.gameState.undo();
         if(update) {
-            var oldSquares = this.squares;
-            this.squares = reformatBoardString(this.gameState.ascii());
-            this.updateBoard(oldSquares); // quick minimal render
+            if(showGraphics) {
+                var oldSquares = this.squares;
+                this.squares = reformatBoardString(this.gameState.ascii());
+                this.updateBoard(oldSquares); // quick minimal render
+            }
             this.score -= this.scoreEvalUpdate(update,true);
         }
     }
@@ -274,7 +294,7 @@ class Board {
     }
 
     async playMachineTurn() {
-        await sleep(250);
+        await sleep(40);
         let moveStr = await this.AIPlayer();
         var update = this.gameState.move(moveStr);
 

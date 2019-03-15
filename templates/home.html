@@ -93,6 +93,7 @@
             b.padding="0";              var dark = "#2970A0";
             var gameBoard =
                 new Board(600,light,dark,staticScoreUpdate,machineMinimax);
+            //gameBoard.setGraphics(false);
             b.gameBoardState = gameBoard;
             gameBoard.printBoard();
             await sleep(500);
