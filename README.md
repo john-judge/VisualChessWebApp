@@ -27,4 +27,5 @@ Currently, you can visualize the tree in its board states of a 3-ply vanilla min
 Next ideas:
 - external-facing option to adjust play speed (sleepTime), ply, graphics verbosity
 - implement alpha beta pruning
+- load/store game states
               
