@@ -1,5 +1,5 @@
 class Board {
-    constructor(screen_size,light,dark,score_fn) {
+    constructor(screen_size,light,dark,score_fn,machinePlayer) {
         this.gameState = new Chess();
         /* 64 char string, view as 8x8 grid: */
         this.squares = reformatBoardString(this.gameState.ascii());
@@ -15,11 +15,17 @@ class Board {
         /*score evaluation; positive means white is winning*/
         this.score = 0;
         this.scoreFn = score_fn;
+        this.machinePlayer = machinePlayer;
 
         /* colorings of squares/highlights: */
         this.light = light;
         this.dark = dark;
-        this.hliteColor = "#FF2828"; // hard coded: red highlights
+        this.hliteFriend = "#FF2828"; /* red friendly highlights */
+        this.hliteEnemy = "#FFF728" /* yellow enemy highlights */
+    }
+
+    AIPlayer() {
+        return this.machinePlayer(this.gameState);
     }
 
     scoreEvalFn(pc) {
@@ -34,13 +40,15 @@ class Board {
         }
         return (this.highlights1 >>> ind) & 1;
     }
+
     getPiece(loc) {
         if(!loc) {
             return null;
         }
         return this.squares.charAt(loc.to_index());
     }
-    add_highlight(loc) {
+
+    addHighlight(loc) {
         /* set hi lite state of LOC */
         var ind = loc.to_index();
         if (ind > 31) {
@@ -49,6 +57,7 @@ class Board {
             this.highlights1 = this.highlights1 | (1 << ind);
         }
     }
+
     clearHighlights() {
         /* remove highlights from list and print blank-outs*/
         for(var i = 0; i < 8; i++) {
@@ -69,6 +78,7 @@ class Board {
         }
         this.highlights2 = 0; this.highlights1 = 0;
     }
+
     printBoard() {
         for(var i = 0; i < 8; i++) {
             for(var j = 0; j < 8; j++) {
@@ -80,27 +90,24 @@ class Board {
             }
         }
     }
-    printHighlights() {
+
+    printHighlights(isEnemy) {
         /* (instead of rendering and printing whole board) update only new highlights */
         for(var i = 0; i < 8; i++) {
             for(var j = 0; j < 8; j++) {
                 var pcLoc = new Loc(i,j)
                 var sqLoc = pcLoc.to_pixel(this.sideLen);
-                var isLight = isLightColor(i,j);
-                var color;
-                if(isLight) {
-                    color = this.light;
-                } else {
-                    color = this.dark;
-                }
                 var pc = this.getPiece(pcLoc);
-                var highLit = "";
+
+                var color = (isLightColor(i,j) ? this.light : this.dark);
+                var hLiteCol = (isEnemy ? this.hliteEnemy : this.hliteFriend);
                 if(this.isHighlighted(pcLoc)) {
-                    print_highlight(this.sideLen,sqLoc,this.hliteColor);
+                    print_highlight(this.sideLen,sqLoc,hLiteCol);
                 }
             }
         }
     }
+
     getMoveList(srcLoc) {
         /* returns LOC to which can move from SRCLOC */
         var srcStr = srcLoc.to_string();
@@ -111,14 +118,16 @@ class Board {
         }
         return this.moveListConsider;
     }
+
     highlightMoveList(moves) {
         console.log("Available moves:")
         var leng = moves.length;
         for(var i = 0; i < leng; i++) {
-            this.add_highlight(moves[i].dst);
+            this.addHighlight(moves[i].dst);
             console.log(moves[i].moveRepr());
         }
     }
+
     printLoc(pcLoc) {
         var sqLoc = pcLoc.to_pixel(this.sideLen);
         var isLight = isLightColor(pcLoc.i,pcLoc.j);
@@ -132,6 +141,7 @@ class Board {
         var highLit = "";
         print_square(color,this.sideLen,sqLoc,pc);
     }
+
     updateBoard(oldSquares) {
         /* reprint only squares that have changed */
         for(var i = 0; i < 8; i++) {
@@ -170,10 +180,7 @@ class Board {
             console.log("score:" + this.score);
             var oldSquares = this.squares;
             this.squares = reformatBoardString(this.gameState.ascii());
-            var src = update.from;          var dst = update.to;
-            src = string_to_loc(src);       dst = string_to_loc(dst);
-            this.printLoc(src);             this.printLoc(dst);
-            this.updateBoard(oldSquares); // replace with quick minimal update
+            this.updateBoard(oldSquares); // quick minimal render
             printReadout("Last move " + move.moveRepr());
             this.checkEndGame();
         } else {
@@ -206,12 +213,17 @@ class Board {
             console.print("error: promotion cache found empty");
         } else {
             this.makeMove(this.possiblePromos[selectionIndex]);
+            if(this.gameState.turn() != 'b'){
+                this.playMachineTurn();
+            }
+
         }
         var promButton = document.getElementById('promoSelect');
         promButton.style.display = "none";
     }
 
-    handle_click(clickPxLoc) {
+    handleClick(clickPxLoc) {
+        if(this.gameState.turn() == 'b') {
         var clickSqLoc = clickPxLoc.to_square(this.sideLen);
         var clickStr = clickSqLoc.to_string();
         var moves = this.getMoveListMatches(this.selectedLoc,clickSqLoc);
@@ -225,16 +237,50 @@ class Board {
                 this.possiblePromos = moves;
             } else {
                 this.makeMove(moves[0]);
+                if(this.gameState.turn() != 'b') {
+                    this.playMachineTurn();
+                }
             }
 
         } else {
             /* user is considering new move src location */
             this.clearHighlights();
-            this.add_highlight(clickSqLoc);
+            this.addHighlight(clickSqLoc);
             var moveList = this.getMoveList(clickSqLoc);
             this.highlightMoveList(moveList);
             this.printHighlights();
             this.selectedLoc = clickSqLoc;
         }
+        }
     }
+
+    async playMachineTurn() {
+        await sleep(250);
+        var moveStr = this.AIPlayer();
+        var update = this.gameState.move(moveStr);
+
+        /*
+        this.selectedLoc = null;
+        this.clearHighlights();*/ //add in highlight tracers later
+        if(update) {
+            var srcLoc = string_to_loc(update.from);
+            var dstLoc = string_to_loc(update.to);
+
+            this.score += this.scoreEvalFn(this.getPiece(dstLoc));
+            console.log("score:" + this.score);
+
+            var move = new Move(srcLoc,moveStr);
+            this.addHighlight(srcLoc);
+            this.addHighlight(dstLoc);
+
+            var oldSquares = this.squares;
+            this.squares = reformatBoardString(this.gameState.ascii());
+            this.updateBoard(oldSquares);
+            this.printHighlights(1);
+            printReadout("Last move (white) " + move.moveRepr());
+            this.checkEndGame();
+        }
+    }
+
+
 }

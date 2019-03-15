@@ -8,7 +8,7 @@
     <body>
         <header>
         <div class="home">
-            <h2 class="logo"> Chess </h2>
+            <h2 class="logo"> Watch My Chess Moves </h2>
             <h3 id="readout">Ever wanted to visualize the
             stream of conciousness of a chess machine?</h3>
 
@@ -43,9 +43,16 @@
             <p>
 
                 <p>
-                Chess move generation/validation open-source library courtesy of
-                <a href="https://github.com/jhlywa/chess.js/"> jhlywa
+                Chess move generation and validation library: courtesy of
+                <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
+                <br> Read more about chess AI:
+                <a href="https://en.wikipedia.org/wiki/Evaluation_function#In_chess">
+                static evaluation</a>,
+                <a href="https://en.wikipedia.org/wiki/Minimax">minimax</a> and
+                <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning">
+                     alpha-beta pruning
                 </a>
+
                 </p>
 
             <br> </br>
@@ -74,7 +81,7 @@
         const boardCanvas = document.getElementById('board');
         boardCanvas.addEventListener('click', function(event) {
             var clickedPxLoc = get_click_location(boardCanvas,event);
-            boardCanvas.gameBoardState.handle_click(clickedPxLoc);
+            boardCanvas.gameBoardState.handleClick(clickedPxLoc);
         } );
 
         </script>

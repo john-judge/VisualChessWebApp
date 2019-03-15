@@ -11,8 +11,13 @@ function staticScore(pc) {
 }
 
 
-
+function machineRandom(gameState) {
+    /* a chess AI that selects moves randomly */
+    var allMoves = gameState.moves();
+    var randInt = Math.floor(Math.random() * allMoves.length);
+    return allMoves[randInt];
+}
 
 function machineGreedy(gameState) {
-    /* a chess AI that selects randomly among highest scoring moves */
+    /* a chess AI that selects (randomly) among highest scoring moves */
 }
