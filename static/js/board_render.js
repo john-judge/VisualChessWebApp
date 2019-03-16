@@ -197,7 +197,8 @@ class Board {
         this.selectedLoc = null;
         if(showGraphics) {this.clearHighlights();}
         if(update) {
-            this.score += this.scoreEvalUpdate(update,true);
+            var blackTurn = (this.gameState.turn() == 'b');
+            this.score += this.scoreEvalUpdate(update,blackTurn);
             console.log("score:" + this.score);
             if(showGraphics) {
                 var oldSquares = this.squares;
@@ -313,7 +314,8 @@ class Board {
             this.squares = reformatBoardString(this.gameState.ascii());
             this.updateBoard(oldSquares);
 
-            this.score += this.scoreEvalUpdate(update,false);
+            var blackTurn = this.gameState.turn() == 'b';
+            this.score += this.scoreEvalUpdate(update,blackTurn);
             console.log("score:" + this.score);
 
             this.printHighlights(1);
