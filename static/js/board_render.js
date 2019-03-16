@@ -20,7 +20,7 @@ class Board {
         this.machinePlayer = machinePlayer;
         this.showGraphics = true;
         this.minimaxPly = 3;
-        this.sleepTime = 5; // milliseconds
+        this.sleepTime = 2; // milliseconds
 
         /* colorings of squares/highlights: */
         this.light = light;

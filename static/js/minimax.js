@@ -38,7 +38,7 @@ async function minimax(boardState,depth,isMaxPlayer) {
             if ((moveVal[0] > currMinMax) ||
             ((moveVal[0] == currMinMax) &&
             ((Math.random() * i) > (0.5 * allMoves.length)))) {
-                currMinMax = moveVal;
+                currMinMax = moveVal[0];
                 currMove = allMoves[i];
             }
             boardState.undoMove(showGraphics=isShown);
@@ -49,26 +49,30 @@ async function minimax(boardState,depth,isMaxPlayer) {
     } else {
         currMinMax = 999;
         for(var i = 0; i < allMoves.length; i++) {
+            var oldScore = boardState.score;
             boardState.makeMove(allMoves[i],san=true,showGraphics=isShown);
             let moveVal = await minimax(boardState,depth-1, true);
             await sleep(boardState.sleepTime);
             if ((moveVal[0] < currMinMax) ||
             ((moveVal[0] == currMinMax) &&
             ((Math.random() * i) > (0.5 * allMoves.length)))) {
-                currMinMax = moveVal;
+                currMinMax = moveVal[0];
                 currMove = allMoves[i];
             }
             boardState.undoMove(showGraphics=isShown);
+            boardState.score = oldScore;
             await sleep(boardState.sleepTime);
         }
         return [currMinMax,currMove];
     }
 }
 
-async function machineMinimax(boardState,ply=3) {
+async function machineMinimax(boardState) {
     /* chess AI: vanilla minimax */
+    this.minimaxPly = 2;
     let minimaxed = await
-    minimax(boardState,this.minimaxPly,false,showGraphics=this.shownGraphics);
+    minimax(boardState,this.minimaxPly,true,showGraphics=this.showGraphics);
+    console.log("minmax:" + minimaxed);
     return minimaxed[1];
 }
 
