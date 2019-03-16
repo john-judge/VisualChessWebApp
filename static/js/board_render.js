@@ -223,7 +223,9 @@ class Board {
                 this.squares = reformatBoardString(this.gameState.ascii());
                 this.updateBoard(oldSquares); // quick minimal render
             }
-            this.score -= this.scoreEvalUpdate(update,true);
+            if(update.flags.includes("p")) {
+
+            }
         }
     }
 
