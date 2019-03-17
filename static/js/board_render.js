@@ -1,5 +1,5 @@
 class Board {
-    constructor(screen_size,light,dark,score_fn,machinePlayer) {
+    constructor(screen_size,colors,players) {
         this.gameState = new Chess();
         /* 64 char string, view as 8x8 grid: */
         this.squares = reformatBoardString(this.gameState.ascii());
@@ -8,51 +8,18 @@ class Board {
         this.highlights2 = 0;
         this.selectedLoc = null;
         this.moveListConsider = [];
-        this.playing = true;
         this.screen_size = screen_size; // square
         this.sideLen = screen_size / 8;
 
-        /*score evaluation; positive means white is winning*/
-        this.score = 0;
-        this.scoreFn = score_fn;
-
-        /* AI options, verbosity, depth, algorithm type */
-        this.machinePlayer = machinePlayer;
-        this.showGraphics = true;
-        this.minimaxPly = 3;
-        this.sleepTime = 2; // milliseconds
+        /* AI or human players */
+        this.player0 = players[0];
+        this.player1 = players[1];
 
         /* colorings of squares/highlights: */
-        this.light = light;
-        this.dark = dark;
-        this.hliteFriend = "#FF2828"; /* red friendly highlights */
-        this.hliteEnemy = "#FFF728" /* yellow enemy highlights */
-    }
-
-    setSleepTime(sleepTime) {
-        this.sleepTime = sleepTime;
-    }
-
-    setMinimaxPly(ply) {
-        this.minimaxPly = ply;
-    }
-
-    setGraphics(isShown) {
-        this.showGraphics = isShown;
-    }
-
-    async AIPlayer() {
-        let mv = await this.machinePlayer(this);
-        return mv;
-    }
-
-    scoreEvalUpdate(update,isBlack) {
-        var prevPc = update.piece;
-        var currPc = this.getPiece(string_to_loc(update.to)).toLowerCase();
-        if(prevPc == currPc) {
-            currPc = null; // no promotion
-        }
-        return this.scoreFn(update,isBlack,currPc);
+        this.light = colors[0];
+        this.dark = colors[1];
+        this.hlite0 = "#FF2828"; /* red highlights */
+        this.hlite1 = "#FFF728" /* yellow highlights */
     }
 
     isHighlighted(loc) {
@@ -123,7 +90,7 @@ class Board {
                 var pc = this.getPiece(pcLoc);
 
                 var color = (isLightColor(i,j) ? this.light : this.dark);
-                var hLiteCol = (isEnemy ? this.hliteEnemy : this.hliteFriend);
+                var hLiteCol = (isEnemy ? this.hlite1 : this.hlite0);
                 if(this.isHighlighted(pcLoc)) {
                     print_highlight(this.sideLen,sqLoc,hLiteCol);
                 }
@@ -184,9 +151,12 @@ class Board {
             } else {
                 printReadout("Black has won; but the true prize is the journey.");
             }
-        }
-        else if (this.gameState.game_over()) {
+            return true;
+        } else if (this.gameState.game_over()) {
             printReadout("Neither player wins; but the true prize is the journey.");
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -283,7 +253,6 @@ class Board {
                         this.playMachineTurn();
                     }
                 }
-
             } else {
                 /* user is considering new move src location */
                 this.clearHighlights();
@@ -296,33 +265,20 @@ class Board {
         }
     }
 
-    async playMachineTurn() {
-        await sleep(40);
-        let moveStr = await this.AIPlayer();
-        var update = this.gameState.move(moveStr);
-
-        /*add in highlight tracers later */
-        if(update) {
-            var srcLoc = string_to_loc(update.from);
-            var dstLoc = string_to_loc(update.to);
-
-            var move = new Move(srcLoc,moveStr);
-            this.addHighlight(srcLoc);
-            this.addHighlight(dstLoc);
-
-            var oldSquares = this.squares;
-            this.squares = reformatBoardString(this.gameState.ascii());
-            this.updateBoard(oldSquares);
-
-            var blackTurn = this.gameState.turn() == 'b';
-            this.score += this.scoreEvalUpdate(update,blackTurn);
-            console.log("score:" + this.score);
-
-            this.printHighlights(1);
-            printReadout("Last move (white) " + move.moveRepr());
-            this.checkEndGame();
+    playGame() {
+        while(!this.checkEndGame()) {
+            this.takeTurn();
         }
     }
+
+    takeTurn() {
+        if(this.gameState.turn() == this.player0.playerColor) {
+            this.player0.takeTurn();
+        } else {
+            this.player1.takeTurn();
+        }
+    }
+
 
 
 }
