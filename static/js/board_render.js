@@ -225,10 +225,6 @@ class Board {
             console.print("error: promotion cache found empty");
         } else {
             this.makeMove(this.possiblePromos[selectionIndex]);
-            if(this.gameState.turn() != 'b'){
-                this.playMachineTurn();
-            }
-
         }
         var promButton = document.getElementById('promoSelect');
         promButton.style.display = "none";
@@ -249,9 +245,6 @@ class Board {
                     this.possiblePromos = moves;
                 } else {
                     this.makeMove(moves[0]);
-                    if(this.gameState.turn() != 'b') {
-                        this.playMachineTurn();
-                    }
                 }
             } else {
                 /* user is considering new move src location */
@@ -273,9 +266,9 @@ class Board {
 
     takeTurn() {
         if(this.gameState.turn() == this.player0.playerColor) {
-            this.player0.takeTurn();
+            var move = this.player0.takeTurn();
         } else {
-            this.player1.takeTurn();
+            var move = this.player1.takeTurn();
         }
     }
 

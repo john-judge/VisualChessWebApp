@@ -25,7 +25,7 @@ class AIPlayer{
         this.score = 0;
     }
 
-    async playTurn(board) {
+    async takeTurn(board) {
         if(!this.playType) {
             /*human -- await Event listener */
             while(board.gameState.turn() == this.playerColor) {
@@ -34,8 +34,6 @@ class AIPlayer{
         } else {
             playMachineTurn(board);
         }
-
-
     }
 
     staticScoreUpdate(update,isBlack,promo) {
@@ -50,7 +48,7 @@ class AIPlayer{
             promScore = (pieceScores[promo] - 1) * (isBlack ? 1 : -1);
             if(!promScore) {promScore = 0;}
         }
-        return capScore + promScore;
+        this.score += capScore + promScore;
     }
 
     machineRandom(boardState) {
@@ -116,7 +114,6 @@ class AIPlayer{
         return minimaxed[1];
     }
 
-
     async playMachineTurn(board) {
         let moveStr = await this.machineMinimax(this);
         return this.gameState.move(moveStr);
@@ -134,15 +131,11 @@ class AIPlayer{
             this.squares = reformatBoardString(board.gameState.ascii());
             this.updateBoard(oldSquares);
 
-            var blackTurn = board.gameState.turn() == 'b';
-
-            this.score += this.scoreStaticUpdate(update,blackTurn,)
-
             board.printHighlights(1);
             printReadout("Last move (white) " + move.moveRepr());
-
         }
     }
+
 
 
 
