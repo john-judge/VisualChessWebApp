@@ -10,6 +10,7 @@ class Board {
         this.moveListConsider = [];
         this.screen_size = screen_size; // square
         this.sideLen = screen_size / 8;
+        this.ended = false;
 
         /* AI or human players */
         this.player0 = players[0];
@@ -101,10 +102,10 @@ class Board {
     getMoveList(srcLoc) {
         /* returns LOC to which can move from SRCLOC */
         var srcStr = srcLoc.to_string();
-        var mvSans = this.gameState.moves({square: srcStr});
-        this.moveListConsider = [];
+        var mvObjs = this.gameState.moves({square: srcStr, verbose: true});
+        this.moveListConsider = mvObjs;
         for(var i = 0; i < mvSans.length; i++) {
-            this.moveListConsider.push(new Move(srcLoc,mvSans[i]));
+            this.moveListConsider.push(new Move(mvObjs[i]));
         }
         return this.moveListConsider;
     }
@@ -112,7 +113,7 @@ class Board {
     highlightMoveList(moves) {
         var leng = moves.length;
         for(var i = 0; i < leng; i++) {
-            this.addHighlight(moves[i].dst);
+            this.addHighlight(moves[i].to);
         }
     }
 
@@ -151,57 +152,47 @@ class Board {
             } else {
                 printReadout("Black has won; but the true prize is the journey.");
             }
+            this.ended = true;
             return true;
         } else if (this.gameState.game_over()) {
             printReadout("Neither player wins; but the true prize is the journey.");
             return true;
+            this.ended = true;
         } else {
             return false;
         }
     }
 
-    makeMove(move,isSan=false,showGraphics=true) {
-        var update =
-        (isSan ? this.gameState.move(move) : this.gameState.move(move.san));
+    flushGraphics() {
+        /* update board GUI with quick, minimal render */
+        var oldSquares = this.squares;
+        this.squares = reformatBoardString(this.gameState.ascii());
+        this.updateBoard(oldSquares);
+    }
+
+    makeMove(move,showGraphics) {
+        var update = this.gameState.move(move.san);
         this.moveListConsider = [];
         this.selectedLoc = null;
         if(showGraphics) {this.clearHighlights();}
         if(update) {
-            var blackTurn = (this.gameState.turn() == 'b');
-            this.score += this.scoreEvalUpdate(update,blackTurn);
-            console.log("score:" + this.score);
-            if(showGraphics) {
-                var oldSquares = this.squares;
-                this.squares = reformatBoardString(this.gameState.ascii());
-                this.updateBoard(oldSquares); // quick minimal render
-            }
-
-            if(!isSan) {
-                printReadout("Last move " + move.moveRepr());
-            }
-            this.checkEndGame();
+            if(showGraphics) {this.flushGraphics();}
         } else {
-            console.log("invalid move:" + (isSan ? move :move.san));
+            console.log("invalid move:" + move.san);
         }
     }
 
-
-    undoMove(showGraphics=true) {
+    undoMove(showGraphics) {
         var update = this.gameState.undo();
         if(update) {
             if(showGraphics) {
-                var oldSquares = this.squares;
-                this.squares = reformatBoardString(this.gameState.ascii());
-                this.updateBoard(oldSquares); // quick minimal render
-            }
-            if(update.flags.includes("p")) {
-
+                this.flushGraphics();
             }
         }
     }
 
     getMoveListMatches(srcLoc,dstLoc) {
-        /* search this.moveListConsider for loc matches; else return null */
+        /* search this.moveListConsider for loc matches */
         if(!this.getPiece(srcLoc)) {
             return null;
         }
@@ -213,11 +204,7 @@ class Board {
                 matches.push(mv);
             }
         }
-        if(matches == []) {
-            return null;
-        } else {
-            return matches;
-        }
+        return matches;
     }
 
     handlePromotion(selectionIndex) {
@@ -235,7 +222,7 @@ class Board {
             var clickSqLoc = clickPxLoc.to_square(this.sideLen);
             var clickStr = clickSqLoc.to_string();
             var moves = this.getMoveListMatches(this.selectedLoc,clickSqLoc);
-            if(moves && moves.length > 0) {
+            if(moves && moves.length) {
                 /* user has selected a move: */
                 if(moves.length == 4 || moves[0].isPromotion()) {
                     printReadout("Pawn promotion: " +
@@ -258,18 +245,34 @@ class Board {
         }
     }
 
-    playGame() {
-        while(!this.checkEndGame()) {
-            this.takeTurn();
-        }
-    }
-
-    takeTurn() {
+    async playTurn() {
+        /* play one turn, then wake other player. */
         if(this.gameState.turn() == this.player0.playerColor) {
-            var move = this.player0.takeTurn();
+            let move = await this.player0.takeTurn(this);
         } else {
-            var move = this.player1.takeTurn();
+            let move = await this.player1.takeTurn(this);
         }
+        if(move) {
+            var update = this.makeMove(move,true);
+        }
+        /*add in highlight tracers later */
+        if(update) {
+            var srcLoc = string_to_loc(update.from);
+            var dstLoc = string_to_loc(update.to);
+
+            var move = new Move(move);
+            board.addHighlight(srcLoc);
+            board.addHighlight(dstLoc);
+
+            var oldSquares = board.squares;
+            board.squares = reformatBoardString(board.gameState.ascii());
+            board.updateBoard(oldSquares);
+
+            board.printHighlights(1);
+            printReadout("Last move(" + this.playerColor + ") "  + move.moveRepr());
+        }
+
+        this.checkEndGame();
     }
 
 

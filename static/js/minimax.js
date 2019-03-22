@@ -1,7 +1,7 @@
 /*
 Next to do:
 
-create class AIPlayer
+create class Player
 -stores/updates score function (instead of in board)
 -calls minimax methods
 
@@ -10,7 +10,7 @@ makeMove, add/remove/print highlights/squares, update scores: need to make
 then some high level wrappers
 */
 
-class AIPlayer{
+class Player {
     constructor(playType,playerColor,isShown,sleepTime) {
         /* 0-human; else PLAYTYPE is ply number of machine player */
         this.playType = playType;
@@ -20,34 +20,29 @@ class AIPlayer{
         this.isShown = isShown;
         this.sleepTime = sleepTime;
 
-        /* tracks score of last gameState passed to its method
-                    positive means white is winning*/
+        /* tracks score of last gameState passed to its method */
         this.score = 0;
     }
 
-    async takeTurn(board) {
-        if(!this.playType) {
-            /*human -- await Event listener */
-            while(board.gameState.turn() == this.playerColor) {
-                await sleep(30);
-            }
+    async takeTurn(boardState) {
+        if(this.playType) {
+            let mv = await this.machineMinimax(boardState);
+            this.staticScoreUpdate(mv,(this.playerColor == "b"));
+            return mv;
         } else {
-            playMachineTurn(board);
+            /* if human, let this thread return, and await Event listener;
+                playGame thread is restarted when human player acts */
+            return null;
         }
     }
 
-    staticScoreUpdate(update,isBlack,promo) {
+    staticScoreUpdate(mv,isBlack) {
         /* return score change; white is positive */
-        var pcCaptured = update.captured;
         var pieceScores = {'p':1, 'r':5, 'n':3, 'b':3, 'q':9, 'k':99};
-        var capScore = (!pcCaptured ? 0 :
-        (pieceScores[pcCaptured] * (isBlack ? 1 : -1)));
-        var promScore = 0;
-        if(update.flags.includes("p")) {
-            console.log("promo to " + promo);
-            promScore = (pieceScores[promo] - 1) * (isBlack ? 1 : -1);
-            if(!promScore) {promScore = 0;}
-        }
+        var capScore = (!mv.captured ? 0 :
+            (pieceScores[mv.captured] * (isBlack ? 1 : -1)));
+        var promScore = (!mv.promotion ? 0 :
+            (pieceScores[mv.promotion] - 1 ) * (isBlack ? 1 : -1));
         this.score += capScore + promScore;
     }
 
@@ -64,14 +59,14 @@ class AIPlayer{
         if((depth == 0) || boardState.gameState.game_over()) {
             return [this.score, null];
         }
-        var allMoves = boardState.gameState.moves();
+        var allMoves = boardState.gameState.moves({verbose : true});
         var currMinMax, currMove;
         if(isMaxPlayer) {
             currMinMax = -999;
             for(var i = 0; i < allMoves.length; i++) {
                 var oldScore = boardState.score;
-                boardState.makeMove(allMoves[i],san=true,showGraphics=isShown);
-                let moveVal = await minimax(boardState,depth-1, false);
+                boardState.makeMove(allMoves[i], this.isShown);
+                let moveVal = await this.minimax(boardState,depth-1, false);
                 await sleep(boardState.sleepTime);
                 if ((moveVal[0] > currMinMax) ||
                 ((moveVal[0] == currMinMax) &&
@@ -79,7 +74,7 @@ class AIPlayer{
                     currMinMax = moveVal[0];
                     currMove = allMoves[i];
                 }
-                boardState.undoMove(showGraphics=isShown);
+                boardState.undoMove(this.isShown);
                 boardState.score = oldScore;
                 await sleep(boardState.sleepTime);
             }
@@ -88,8 +83,8 @@ class AIPlayer{
             currMinMax = 999;
             for(var i = 0; i < allMoves.length; i++) {
                 var oldScore = boardState.score;
-                boardState.makeMove(allMoves[i],san=true,showGraphics=isShown);
-                let moveVal = await minimax(boardState,depth-1, true);
+                boardState.makeMove(allMoves[i], this.isShown);
+                let moveVal = await this.minimax(boardState,depth-1, true);
                 await sleep(boardState.sleepTime);
                 if ((moveVal[0] < currMinMax) ||
                 ((moveVal[0] == currMinMax) &&
@@ -97,7 +92,7 @@ class AIPlayer{
                     currMinMax = moveVal[0];
                     currMove = allMoves[i];
                 }
-                boardState.undoMove(showGraphics=isShown);
+                boardState.undoMove(this.isShown);
                 boardState.score = oldScore;
                 await sleep(boardState.sleepTime);
             }
@@ -108,32 +103,10 @@ class AIPlayer{
     async machineMinimax(boardState) {
         /* chess AI: vanilla minimax */
         this.minimaxPly = 2;
+        var isMaxPlayer = (this.playerColor == 'b');
         let minimaxed = await
-        minimax(boardState,this.minimaxPly,true,showGraphics=this.showGraphics);
-        console.log("minmax:" + minimaxed);
+            this.minimax(boardState,this.minimaxPly,isMaxPlayer);
         return minimaxed[1];
-    }
-
-    async playMachineTurn(board) {
-        let moveStr = await this.machineMinimax(this);
-        return this.gameState.move(moveStr);
-
-        /*add in highlight tracers later */
-        if(update) {
-            var srcLoc = string_to_loc(update.from);
-            var dstLoc = string_to_loc(update.to);
-
-            var move = new Move(srcLoc,moveStr);
-            this.addHighlight(srcLoc);
-            this.addHighlight(dstLoc);
-
-            var oldSquares = board.squares;
-            this.squares = reformatBoardString(board.gameState.ascii());
-            this.updateBoard(oldSquares);
-
-            board.printHighlights(1);
-            printReadout("Last move (white) " + move.moveRepr());
-        }
     }
 
 

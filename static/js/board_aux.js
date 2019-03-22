@@ -1,20 +1,18 @@
 class Move {
-    constructor(srcLoc,san) {
-        this.san = san; //Standard Algebraic Notation
-        this.src = srcLoc;
-        san = san.split("+")[0].split("#")[0];
-        san = san.split("=");
-        this.dst = string_to_loc(san[0].slice(-2));
-        if(san.length < 2) {
-            this.promotion = null;
-        } else {
-            this.promotion = san[1];
-        }
-        if(this.san == 'O-O') {
-            this.dst = new Loc(this.src.i + 2,this.src.j);
-        } else if(this.san == 'O-O-O') {
-            this.dst = new Loc(this.src.i - 2,this.src.j);
-        }
+    constructor(moveObj) {
+        /* instead of using the chess library objects, convert into own objects
+        where the locations are LOC objects, not strings */
+        this.san = moveObj.san; //Standard Algebraic Notation
+        this.src = string_to_loc(moveObj.from);
+        this.dst = string_to_loc(moveObj.to);
+        this.piece = moveObj.piece;
+        var f = moveObj.flags;
+        this.captured = (f.includes("c") ? moveObj.captured : null);
+        this.promotion = (f.includes("p") ? moveObj.promotion : null);
+
+        this.pawnTwoSquare = f.includes("b");
+        this.enPassant = f.includes("e");
+        this.isCastling = f.includes("k") || f.includes("q");
     }
 
     areLocMatches(src,dst) {
@@ -31,10 +29,6 @@ class Move {
         this.src.to_string() +
         " to " +
         this.dst.to_string());
-    }
-
-    isPromotion() {
-        return (this.promotion != null);
     }
 }
 
