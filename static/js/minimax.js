@@ -25,15 +25,18 @@ class Player {
     }
 
     async takeTurn(boardState) {
+        var update = null;
         if(this.playType) {
             let mv = await this.machineMinimax(boardState);
+            console.log("moving" + mv.san);
             this.staticScoreUpdate(mv,(this.playerColor == "b"));
-            return mv;
+            update = boardState.makeMove(mv);
         } else {
             /* if human, let this thread return, and await Event listener;
                 playGame thread is restarted when human player acts */
-            return null;
+            update = null;
         }
+        boardState.endTurn(update);
     }
 
     staticScoreUpdate(mv,isBlack) {

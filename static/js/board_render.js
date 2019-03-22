@@ -103,9 +103,12 @@ class Board {
         /* returns LOC to which can move from SRCLOC */
         var srcStr = srcLoc.to_string();
         var mvObjs = this.gameState.moves({square: srcStr, verbose: true});
-        this.moveListConsider = mvObjs;
-        for(var i = 0; i < mvSans.length; i++) {
-            this.moveListConsider.push(new Move(mvObjs[i]));
+        this.moveListConsider = [];
+
+        for(var i = 0; i < mvObjs.length; i++) {
+            var m = mvObjs[i];
+            var newMv = new Move(m.san,m.from,m.to,m.piece,m.flags,m.captured,m.promotion);
+            this.moveListConsider.push(newMv);
         }
         return this.moveListConsider;
     }
@@ -113,7 +116,7 @@ class Board {
     highlightMoveList(moves) {
         var leng = moves.length;
         for(var i = 0; i < leng; i++) {
-            this.addHighlight(moves[i].to);
+            this.addHighlight(moves[i].dst);
         }
     }
 
@@ -180,6 +183,7 @@ class Board {
         } else {
             console.log("invalid move:" + move.san);
         }
+        return update;
     }
 
     undoMove(showGraphics) {
@@ -224,7 +228,7 @@ class Board {
             var moves = this.getMoveListMatches(this.selectedLoc,clickSqLoc);
             if(moves && moves.length) {
                 /* user has selected a move: */
-                if(moves.length == 4 || moves[0].isPromotion()) {
+                if(moves.length == 4 || moves[0].promotion) {
                     printReadout("Pawn promotion: " +
                     "Selected desired piece type.");
                     var promButton = document.getElementById('promoSelect');
@@ -247,29 +251,26 @@ class Board {
 
     async playTurn() {
         /* play one turn, then wake other player. */
+        var update;
         if(this.gameState.turn() == this.player0.playerColor) {
-            let move = await this.player0.takeTurn(this);
+            let update = await this.player0.takeTurn(this);
         } else {
-            let move = await this.player1.takeTurn(this);
+            let update = await this.player1.takeTurn(this);
         }
-        if(move) {
-            var update = this.makeMove(move,true);
-        }
-        /*add in highlight tracers later */
+    }
+
+    endTurn(update) {
+        /* commit async follow through of playTurn */
         if(update) {
             var srcLoc = string_to_loc(update.from);
             var dstLoc = string_to_loc(update.to);
+            /*add in highlight tracers later */
+            this.addHighlight(srcLoc);
+            this.addHighlight(dstLoc);
 
-            var move = new Move(move);
-            board.addHighlight(srcLoc);
-            board.addHighlight(dstLoc);
-
-            var oldSquares = board.squares;
-            board.squares = reformatBoardString(board.gameState.ascii());
-            board.updateBoard(oldSquares);
-
-            board.printHighlights(1);
-            printReadout("Last move(" + this.playerColor + ") "  + move.moveRepr());
+            this.flushGraphics();
+            this.printHighlights(1);
+            printReadout("Last move(" + this.playerColor + ") to"  + update.to);
         }
 
         this.checkEndGame();

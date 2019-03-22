@@ -1,14 +1,14 @@
 class Move {
-    constructor(moveObj) {
+    constructor(san,from,to,piece,f,captured,promotion) {
         /* instead of using the chess library objects, convert into own objects
         where the locations are LOC objects, not strings */
-        this.san = moveObj.san; //Standard Algebraic Notation
-        this.src = string_to_loc(moveObj.from);
-        this.dst = string_to_loc(moveObj.to);
-        this.piece = moveObj.piece;
-        var f = moveObj.flags;
-        this.captured = (f.includes("c") ? moveObj.captured : null);
-        this.promotion = (f.includes("p") ? moveObj.promotion : null);
+        this.san = san; //Standard Algebraic Notation
+        this.src = string_to_loc(from);
+        this.dst = string_to_loc(to);
+        this.piece = piece;
+
+        this.captured = (f.includes("c") ? captured : null);
+        this.promotion = (f.includes("p") ? promotion : null);
 
         this.pawnTwoSquare = f.includes("b");
         this.enPassant = f.includes("e");
