@@ -1,13 +1,11 @@
 /*
 Next to do:
 
-create class Player
--stores/updates score function (instead of in board)
--calls minimax methods
+alpha beta pruning
+silent (no graphics) mode and toggle option; mid-execution switch
 
-makeMove, add/remove/print highlights/squares, update scores: need to make
-1 responsibility per method
-then some high level wrappers
+make staticScoring more powerful--advance pawns, control center, etc
+
 */
 
 class Player {
@@ -19,16 +17,17 @@ class Player {
 
         /* options/whether to print graphics */
         this.isShown = isShown;
-        this.sleepTime = sleepTime;
+        this.sleepTime = (isShown ? sleepTime : 0);
 
         /* tracks score of last gameState passed to its method */
         this.score = 0;
+        this.pieceScores = {'p':1, 'r':5, 'n':3, 'b':3, 'q':9, 'k':99};
+
     }
 
     setPly(nPly) {
         if(nPly > 0 && nPly < 15) {
             this.playType = nPly;
-            console.log("ply set to "+nPly);
         }
     }
 
@@ -36,8 +35,8 @@ class Player {
         var update = null;
         if(this.playType) {
             let mv = await this.machineMinimax(boardState);
+            console.log("moving" + mv);
             console.log("moving" + mv.san);
-            this.staticScoreUpdate(mv,(this.playerColor == "b"));
             update = boardState.makeMove(mv);
         } else {
             /* if human, let this thread return, and await Event listener;
@@ -49,11 +48,11 @@ class Player {
 
     staticScoreUpdate(mv,isBlack) {
         /* return score change; white is positive */
-        var pieceScores = {'p':1, 'r':5, 'n':3, 'b':3, 'q':9, 'k':99};
         var capScore = (!mv.captured ? 0 :
-            (pieceScores[mv.captured] * (isBlack ? 1 : -1)));
+            (this.pieceScores[mv.captured] * (isBlack ? 1 : -1)));
         var promScore = (!mv.promotion ? 0 :
-            (pieceScores[mv.promotion] - 1 ) * (isBlack ? 1 : -1));
+            (this.pieceScores[mv.promotion] - 1 ) * (isBlack ? 1 : -1));
+
         this.score += capScore + promScore;
     }
 
@@ -75,10 +74,12 @@ class Player {
         if(isMaxPlayer) {
             currMinMax = -999;
             for(var i = 0; i < allMoves.length; i++) {
-                var oldScore = boardState.score;
-                boardState.makeMove(allMoves[i], this.isShown);
+                var oldScore = this.score;
+                var update = boardState.makeMove(allMoves[i], this.isShown);
+                this.staticScoreUpdate(update,true);
+
                 let moveVal = await this.minimax(boardState,depth-1, false);
-                await sleep(boardState.sleepTime);
+                if(this.isShown) {await sleep(this.sleepTime);}
                 if ((moveVal[0] > currMinMax) ||
                 ((moveVal[0] == currMinMax) &&
                 ((Math.random() * i) > (0.5 * allMoves.length)))) {
@@ -86,17 +87,19 @@ class Player {
                     currMove = allMoves[i];
                 }
                 boardState.undoMove(this.isShown);
-                boardState.score = oldScore;
-                await sleep(boardState.sleepTime);
+                this.score = oldScore;
+                if(this.isShown) {await sleep(this.sleepTime);}
             }
             return [currMinMax, currMove];
         } else {
             currMinMax = 999;
             for(var i = 0; i < allMoves.length; i++) {
-                var oldScore = boardState.score;
-                boardState.makeMove(allMoves[i], this.isShown);
+                var oldScore = this.score;
+                var update = boardState.makeMove(allMoves[i], this.isShown);
+                this.staticScoreUpdate(update,false);
+
                 let moveVal = await this.minimax(boardState,depth-1, true);
-                await sleep(boardState.sleepTime);
+                if(this.isShown) {await sleep(this.sleepTime);}
                 if ((moveVal[0] < currMinMax) ||
                 ((moveVal[0] == currMinMax) &&
                 ((Math.random() * i) > (0.5 * allMoves.length)))) {
@@ -104,8 +107,8 @@ class Player {
                     currMove = allMoves[i];
                 }
                 boardState.undoMove(this.isShown);
-                boardState.score = oldScore;
-                await sleep(boardState.sleepTime);
+                this.score = oldScore;
+                if(this.isShown) {await sleep(this.sleepTime);}
             }
             return [currMinMax,currMove];
         }
@@ -113,7 +116,6 @@ class Player {
 
     async machineMinimax(boardState) {
         /* chess AI: vanilla minimax */
-        console.log("depth will run to " + this.playType);
         var minimaxPly = this.playType;
         var isMaxPlayer = (this.playerColor == 'b');
         let minimaxed = await

@@ -252,13 +252,18 @@ class Board {
     }
 
     async playTurn() {
-        /* play one turn, then wake other player. */
+        /* play one turn, relying on player to wake other player */
         var update;
-        if(this.gameState.turn() == this.player0.playerColor) {
-            let update = await this.player0.takeTurn(this);
-        } else {
-            let update = await this.player1.takeTurn(this);
+        this.checkEndGame();
+        await sleep(18);
+        if(!this.ended) {
+            if(this.gameState.turn() == this.player0.playerColor) {
+                this.player0.takeTurn(this);
+            } else {
+                this.player1.takeTurn(this);
+            }
         }
+        await sleep(9);
     }
 
     endTurn(update, pCol) {

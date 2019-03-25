@@ -110,7 +110,7 @@
 
             var nPly = getPly();
             var humanPlayer = new Player(0,'b',true,0);
-            var computerPlayer = new Player(nPly,'w',true,3);
+            var computerPlayer = new Player(nPly,'w',false,3);
             var players = [humanPlayer,computerPlayer];
             var boardColors = [light,dark]
             var gameBoard =
@@ -126,12 +126,10 @@
 
             for(var i = minPly; i <= maxPly; i++) {
                 var p = document.getElementById('ply' + i);
-                console.log(p);
                 if(p.checked) {
                     return i;
                 }
             }
-            console.log("no ply select found, defaulting to minPly");
             return minPly; // default
         }
 
