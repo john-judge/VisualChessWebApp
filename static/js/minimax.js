@@ -36,7 +36,7 @@ class Player {
                 playGame thread is restarted when human player acts */
             update = null;
         }
-        boardState.endTurn(update);
+        boardState.endTurn(update, this.playerColor);
     }
 
     staticScoreUpdate(mv,isBlack) {
