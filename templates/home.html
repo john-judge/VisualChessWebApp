@@ -18,6 +18,11 @@
                     onclick="selectGraphics(this)" checked></pre>
             </form>
 
+            <form id = "animationSpeedSelect">
+                    <pre> &#9 Select Animation Speed <input type="range" min="1" max="200"
+                    value="50" class="slider" id="speedSelect" onchange="selectSleepTime(this)"></pre>
+            </form>
+
                 <form id="plySelect">
                     <input type="radio" name="ply"
                         id="ply2" onclick="selectPly(this,2)" checked>
@@ -111,8 +116,11 @@
             b.padding="0";              var dark = "#2970A0";
 
             var nPly = getPly();
+            var isShown = getGraphics();
+            var tSleep = getSleepTime();
+
             var humanPlayer = new Player(0,'b',true,0);
-            var computerPlayer = new Player(nPly,'w',true,3);
+            var computerPlayer = new Player(nPly,'w',isShown,tSleep);
             var players = [humanPlayer,computerPlayer];
             var boardColors = [light,dark]
             var gameBoard =
@@ -135,6 +143,16 @@
             return minPly; // default
         }
 
+        function getGraphics() {
+            var cb = document.getElementById('verboseCheck');
+            return cb.checked;
+        }
+
+        function getSleepTime() {
+            var rs = document.getElementById("speedSelect");
+            return parseInt(rs.value);
+        }
+
         function selectPly(checkBoxElem,nPly) {
             if(checkBoxElem.checked) {
                 var b = document.getElementById('board');
@@ -150,6 +168,12 @@
                 b.gameBoardState.player1.setGraphics(false);
             }
         }
+
+        function selectSleepTime(rangeSlider) {
+            var b = document.getElementById('board');
+            b.gameBoardState.player1.setSleepTime(parseInt(rangeSlider.value));
+        }
+
 
         </script>
 

@@ -35,6 +35,12 @@ class Player {
         this.isShown = isShown;
     }
 
+    setSleepTime(st) {
+        if(st >= 0 && this.isShown) {
+            this.sleepTime = st;
+        }
+    }
+
     async takeTurn(boardState) {
         var update = null;
         if(this.playType) {
@@ -98,7 +104,6 @@ class Player {
                 /* alpha-beta pruning: break eval if proven rest is no better */
                 alpha = Math.max(alpha,moveVal);
                 if(beta < alpha) {
-                    console.log("pruning");
                     break;
                 }
             }
@@ -127,7 +132,6 @@ class Player {
                 /* alpha-beta pruning: break eval if proven rest is no better */
                 beta = Math.min(beta,moveVal);
                 if(beta < alpha) {
-                    console.log("pruning");
                     break;
                 }
             }
