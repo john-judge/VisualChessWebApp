@@ -15,6 +15,7 @@ class Player {
         /* 0-human; else PLAYTYPE is ply number of machine player */
         this.playType = playType;
         this.playerColor = playerColor; //black or white
+        this.minimaxPly = playType;
 
         /* options/whether to print graphics */
         this.isShown = isShown;
@@ -22,6 +23,13 @@ class Player {
 
         /* tracks score of last gameState passed to its method */
         this.score = 0;
+    }
+
+    setPly(nPly) {
+        if(nPly > 0 && nPly < 15) {
+            this.playType = nPly;
+            console.log("ply set to "+nPly);
+        }
     }
 
     async takeTurn(boardState) {
@@ -105,10 +113,11 @@ class Player {
 
     async machineMinimax(boardState) {
         /* chess AI: vanilla minimax */
-        this.minimaxPly = 2;
+        console.log("depth will run to " + this.playType);
+        var minimaxPly = this.playType;
         var isMaxPlayer = (this.playerColor == 'b');
         let minimaxed = await
-            this.minimax(boardState,this.minimaxPly,isMaxPlayer);
+            this.minimax(boardState,minimaxPly,isMaxPlayer);
         return minimaxed[1];
     }
 

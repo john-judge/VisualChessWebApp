@@ -18,6 +18,17 @@
             <h3>
             <button type="button" onclick="startGame()">New Game</button>
 
+                <form id="plySelect">
+                    2-Ply (Easy) <input type="radio" name="ply"
+                        id="ply2" onclick="selectPly(this,2)" checked>
+                    <br>
+                    3-Ply (Intermediate) <input type="radio" name="ply"
+                        id="ply3" onclick="selectPly(this,3)">
+                    <br>
+                    4-Ply (Advanced) <input type="radio" name="ply"
+                        id="ply4" onclick="selectPly(this,4)">
+                </form>
+
             <!-- four-button Promotion input -->
             <p> </p>
             <p id="promoSelect" style = "display:none">
@@ -40,7 +51,12 @@
                 <canvas id="board" width="600" height="600" style="border:3px solid #000000" style="display:none">
                     Your browser does not support canvas. Get a new browser.
                 </canvas>
+
+
+
+
             <p>
+
 
                 <p>
                 Chess move generation and validation library: courtesy of
@@ -92,8 +108,9 @@
             b.margin = "auto";          var light = "#DFE8EE";
             b.padding="0";              var dark = "#2970A0";
 
+            var nPly = getPly();
             var humanPlayer = new Player(0,'b',true,0);
-            var computerPlayer = new Player(2,'w',true,3);
+            var computerPlayer = new Player(nPly,'w',true,3);
             var players = [humanPlayer,computerPlayer];
             var boardColors = [light,dark]
             var gameBoard =
@@ -102,6 +119,27 @@
             gameBoard.printBoard();
             await sleep(500);
             gameBoard.playTurn();
+        }
+
+        function getPly() {
+            var minPly = 2; var maxPly = 4;
+
+            for(var i = minPly; i <= maxPly; i++) {
+                var p = document.getElementById('ply' + i);
+                console.log(p);
+                if(p.checked) {
+                    return i;
+                }
+            }
+            console.log("no ply select found, defaulting to minPly");
+            return minPly; // default
+        }
+
+        function selectPly(checkBoxElem,nPly) {
+            if(checkBoxElem.checked) {
+                var b = document.getElementById('board');
+                b.gameBoardState.player1.setPly(nPly);
+            }
         }
 
         </script>
