@@ -18,7 +18,7 @@ header {
 
 header h1.logo {
     margin: 0;
-    font-size: 1.7em;
+    font-size: 0.7em;
     color: #fff;
     text-transform: uppercase;
     float: left;
@@ -59,6 +59,13 @@ h3 {
     text-align: center;
     letter-spacing: -1px;
     color: #999;
+}
+
+h4 {
+    font-size: 1.0em;
+    font-weight: 100;
+    margin-top: 10px;
+
 }
 
 

@@ -9,25 +9,35 @@
         <header>
         <div class="home">
             <h2 class="logo"> Watch My Chess Moves </h2>
-            <h3 id="readout">Ever wanted to visualize the
-            stream of conciousness of a chess machine?</h3>
-
-
-
-
+            <h3 id="readout">Visualize the
+            stream of conciousness of a chess AI.</h3>
             <h3>
-            <button type="button" onclick="startGame()">New Game</button>
+            <h4>
+            <form id="graphicsVerbositySelect">
+                    <pre>Show Process Animations <input type="checkbox" id="verboseCheck"
+                    onclick="selectGraphics(this)" checked>
+                     </pre>
+            </form>
 
                 <form id="plySelect">
-                    2-Ply (Easy) <input type="radio" name="ply"
+                    <input type="radio" name="ply"
                         id="ply2" onclick="selectPly(this,2)" checked>
+                    2-Ply (Easy)
                     <br>
-                    3-Ply (Intermediate) <input type="radio" name="ply"
+                    <input type="radio" name="ply"
                         id="ply3" onclick="selectPly(this,3)">
+                    3-Ply (Intermediate)
                     <br>
-                    4-Ply (Advanced) <input type="radio" name="ply"
+                    <input type="radio" name="ply"
                         id="ply4" onclick="selectPly(this,4)">
+                    4-Ply (Advanced)
                 </form>
+
+
+
+            </h4>
+
+            <button type="button" onclick="startGame()">New Game</button>
 
             <!-- four-button Promotion input -->
             <p> </p>
@@ -48,7 +58,8 @@
             </h3>
 
             <p align="center">
-                <canvas id="board" width="600" height="600" style="border:3px solid #000000" style="display:none">
+                <canvas id="board" width="600" height="600"
+                        style="border:3px solid #000000" style="display:none">
                     Your browser does not support canvas. Get a new browser.
                 </canvas>
 
@@ -110,7 +121,7 @@
 
             var nPly = getPly();
             var humanPlayer = new Player(0,'b',true,0);
-            var computerPlayer = new Player(nPly,'w',false,3);
+            var computerPlayer = new Player(nPly,'w',true,3);
             var players = [humanPlayer,computerPlayer];
             var boardColors = [light,dark]
             var gameBoard =
@@ -137,6 +148,15 @@
             if(checkBoxElem.checked) {
                 var b = document.getElementById('board');
                 b.gameBoardState.player1.setPly(nPly);
+            }
+        }
+
+        function selectGraphics(checkBoxElem) {
+            var b = document.getElementById('board');
+            if(checkBoxElem.checked) {
+                b.gameBoardState.player1.setGraphics(true);
+            } else {
+                b.gameBoardState.player1.setGraphics(false);
             }
         }
 

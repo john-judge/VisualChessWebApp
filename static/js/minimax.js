@@ -31,6 +31,10 @@ class Player {
         }
     }
 
+    setGraphics(isShown) {
+        this.isShown = isShown;
+    }
+
     async takeTurn(boardState) {
         var update = null;
         if(this.playType) {
