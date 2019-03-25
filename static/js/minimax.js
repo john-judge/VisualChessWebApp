@@ -39,8 +39,6 @@ class Player {
         var update = null;
         if(this.playType) {
             let mv = await this.machineMinimax(boardState);
-            console.log("moving" + mv);
-            console.log("moving" + mv.san);
             update = boardState.makeMove(mv);
         } else {
             /* if human, let this thread return, and await Event listener;
@@ -67,7 +65,8 @@ class Player {
         return allMoves[randInt];
     }
 
-    async minimax(boardState,depth,isMaxPlayer) {
+
+    async minimax(boardState,depth,isMaxPlayer,alpha,beta) {
         /* return minimax best move. */
         var isShown = this.showGraphics;
         if((depth == 0) || boardState.gameState.game_over()) {
@@ -82,17 +81,26 @@ class Player {
                 var update = boardState.makeMove(allMoves[i], this.isShown);
                 this.staticScoreUpdate(update,true);
 
-                let moveVal = await this.minimax(boardState,depth-1, false);
+                let moveVal =
+                    (await this.minimax(boardState,depth-1, false,alpha,beta))[0];
+
                 if(this.isShown) {await sleep(this.sleepTime);}
-                if ((moveVal[0] > currMinMax) ||
-                ((moveVal[0] == currMinMax) &&
+                if ((moveVal > currMinMax) ||
+                ((moveVal == currMinMax) &&
                 ((Math.random() * i) > (0.5 * allMoves.length)))) {
-                    currMinMax = moveVal[0];
+                    currMinMax = moveVal;
                     currMove = allMoves[i];
                 }
                 boardState.undoMove(this.isShown);
                 this.score = oldScore;
                 if(this.isShown) {await sleep(this.sleepTime);}
+
+                /* alpha-beta pruning: break eval if proven rest is no better */
+                alpha = Math.max(alpha,moveVal);
+                if(beta < alpha) {
+                    console.log("pruning");
+                    break;
+                }
             }
             return [currMinMax, currMove];
         } else {
@@ -102,17 +110,26 @@ class Player {
                 var update = boardState.makeMove(allMoves[i], this.isShown);
                 this.staticScoreUpdate(update,false);
 
-                let moveVal = await this.minimax(boardState,depth-1, true);
+                let moveVal =
+                    (await this.minimax(boardState,depth-1, true,alpha,beta))[0];
+
                 if(this.isShown) {await sleep(this.sleepTime);}
-                if ((moveVal[0] < currMinMax) ||
-                ((moveVal[0] == currMinMax) &&
+                if ((moveVal < currMinMax) ||
+                ((moveVal == currMinMax) &&
                 ((Math.random() * i) > (0.5 * allMoves.length)))) {
-                    currMinMax = moveVal[0];
+                    currMinMax = moveVal;
                     currMove = allMoves[i];
                 }
                 boardState.undoMove(this.isShown);
                 this.score = oldScore;
                 if(this.isShown) {await sleep(this.sleepTime);}
+
+                /* alpha-beta pruning: break eval if proven rest is no better */
+                beta = Math.min(beta,moveVal);
+                if(beta < alpha) {
+                    console.log("pruning");
+                    break;
+                }
             }
             return [currMinMax,currMove];
         }
@@ -123,7 +140,7 @@ class Player {
         var minimaxPly = this.playType;
         var isMaxPlayer = (this.playerColor == 'b');
         let minimaxed = await
-            this.minimax(boardState,minimaxPly,isMaxPlayer);
+            this.minimax(boardState,minimaxPly,isMaxPlayer,-999,999);
         return minimaxed[1];
     }
 
