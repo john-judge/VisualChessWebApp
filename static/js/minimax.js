@@ -1,9 +1,6 @@
 /*
 Next to do:
 
-alpha beta pruning
-silent (no graphics) mode and toggle option; mid-execution switch
-
 make staticScoring more powerful--advance pawns, control center, etc
 
 */
@@ -54,14 +51,26 @@ class Player {
         boardState.endTurn(update, this.playerColor);
     }
 
-    staticScoreUpdate(mv,isBlack) {
-        /* return score change; white is positive */
-        var capScore = (!mv.captured ? 0 :
-            (this.pieceScores[mv.captured] * (isBlack ? 1 : -1)));
-        var promScore = (!mv.promotion ? 0 :
-            (this.pieceScores[mv.promotion] - 1 ) * (isBlack ? 1 : -1));
+    locScore(loc) {
+        /* assign a score based on controlling board center */
+        return 0.05 * (7 - Math.abs(3.5 - loc.i) - Math.abs(3.5 - loc.j));
+    }
 
-        this.score += capScore + promScore;
+    staticScoreUpdate(mv,isBlack) {
+        /* return score change; black is positive-favorable*/
+        mv = new
+            Move(mv.san,mv.from,mv.to,mv.piece,mv.flags,mv.captured,mv.promotion);
+        var capScore = (!mv.captured ? 0 :
+            this.pieceScores[mv.captured]);
+        var promScore = (!mv.promotion ? 0 :
+            this.pieceScores[mv.promotion] - 1);
+        console.log(mv.dst);
+        var miscScore = (mv.enPassant ? 0.05 : 0) + (mv.isCastling ? 2.5 : 0)
+                    + (mv.piece == 'p' ? 0.25 : 0) + (mv.PawnTwoSquare ? 0.1 : 0)
+                    + this.locScore(mv.dst);
+        console.log(this.locScore(mv.dst));
+
+        this.score += ((capScore + promScore + miscScore) * (isBlack ? 1 : -1));
     }
 
     machineRandom(boardState) {
@@ -71,6 +80,11 @@ class Player {
         return allMoves[randInt];
     }
 
+
+/*
+branch PARALLEL
+Goal: parallelize the execution of minimax
+*/
 
     async minimax(boardState,depth,isMaxPlayer,alpha,beta) {
         /* return minimax best move. */

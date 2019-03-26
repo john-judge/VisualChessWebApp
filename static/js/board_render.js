@@ -174,6 +174,7 @@ class Board {
     }
 
     makeMove(move,showGraphics) {
+        if(!move) {return null;}
         var update = this.gameState.move(move.san);
         this.moveListConsider = [];
         this.selectedLoc = null;

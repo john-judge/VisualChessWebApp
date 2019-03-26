@@ -39,6 +39,7 @@ class Loc {
         this.i = i;
         this.j = j;
     }
+
     loc_equals(loc2) {
         /* is LOC equivalent to arg LOC2? */
         return ((this.i == loc2.i) && (this.j == loc2.j));
