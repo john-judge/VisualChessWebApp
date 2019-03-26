@@ -68,23 +68,37 @@ class Player {
         var miscScore = (mv.enPassant ? 0.05 : 0) + (mv.isCastling ? 2.5 : 0)
                     + (mv.piece == 'p' ? 0.25 : 0) + (mv.PawnTwoSquare ? 0.1 : 0)
                     + this.locScore(mv.dst);
-        console.log(this.locScore(mv.dst));
 
         this.score += ((capScore + promScore + miscScore) * (isBlack ? 1 : -1));
     }
-
-    machineRandom(boardState) {
+    /*
+     machineRandom(boardState) { */
         /* a chess AI that selects moves randomly */
-        var allMoves = boardState.gameState.moves();
+/*        var allMoves = boardState.gameState.moves();
         var randInt = Math.floor(Math.random() * allMoves.length);
         return allMoves[randInt];
     }
-
+    */
 
 /*
 branch PARALLEL
 Goal: parallelize the execution of minimax
 */
+
+    sortMoves(moveList) {
+        /* sort moves: capture moves at front */
+        var front = [];
+        var other = [];
+        for(var i = 0; i < moveList.length; i++) {
+            var f = moveList[i].flags;
+            if(f.includes("c") || f.includes("p")) {
+                front.push(moveList[i]);
+            } else {
+                other.push(moveList[i]);
+            }
+        }
+        return front.concat(other);
+    }
 
     async minimax(boardState,depth,isMaxPlayer,alpha,beta) {
         /* return minimax best move. */
@@ -94,6 +108,8 @@ Goal: parallelize the execution of minimax
         }
         var allMoves = boardState.gameState.moves({verbose : true});
         var currMinMax, currMove;
+        allMoves = this.sortMoves(allMoves);
+
         if(isMaxPlayer) {
             currMinMax = -999;
             for(var i = 0; i < allMoves.length; i++) {
