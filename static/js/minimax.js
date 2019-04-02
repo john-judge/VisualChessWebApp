@@ -64,7 +64,6 @@ class Player {
             this.pieceScores[mv.captured]);
         var promScore = (!mv.promotion ? 0 :
             this.pieceScores[mv.promotion] - 1);
-        console.log(mv.dst);
         var miscScore = (mv.enPassant ? 0.05 : 0) + (mv.isCastling ? 2.5 : 0)
                     + (mv.piece == 'p' ? 0.25 : 0) + (mv.PawnTwoSquare ? 0.1 : 0)
                     + this.locScore(mv.dst);
