@@ -8,21 +8,53 @@
     <body>
         <header>
         <div class="home">
-            <h2 class="logo"> Watch My Chess Moves </h2>
-            <h3 id="readout">Visualize the
-            stream of conciousness of a chess AI.</h3>
-            <h3>
-            <h4>
+            <h2 class="logo"> Visualize Possible Chess Moves </h2>
+
+
+                            <h3>Witness the
+            stream of conciousness of your friendly neighborhood non-human chess opponent.</h3>
+
+            <p align="center">
+                <canvas id="board" width="600" height="600"
+                        style="border:3px solid #000000" style="display:none">
+                    Your browser does not support canvas. Get a new browser.
+                </canvas>
+
+            <p>
+
+        <p id="readout"> Welcome. </p>
+                <p>
+                Chess move generation and validation library: courtesy of
+                <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
+                <br> Read more about chess AI:
+                <a href="https://en.wikipedia.org/wiki/Evaluation_function#In_chess">
+                static evaluation</a>,
+                <a href="https://en.wikipedia.org/wiki/Minimax">minimax</a> and
+                <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning">
+                     alpha-beta pruning
+                </a>
+                </p>
+
+
+    <div class="sidenav">
+        <p>Animation options:</p>
+                    <h4>
             <form id="graphicsVerbositySelect">
-                    <pre> &#9 Show Process Animations <input type="checkbox" id="verboseCheck"
-                    onclick="selectGraphics(this)" checked></pre>
+                    Show Process Animations <input type="checkbox" id="verboseCheck"
+                    onclick="selectGraphics(this)" checked>
             </form>
+            </h4>
+
+          <h4>
 
             <form id = "animationSpeedSelect">
-                    <pre> &#9 Select Animation Speed <input type="range" min="1" max="200"
-                    value="50" class="slider" id="speedSelect" onchange="selectSleepTime(this)"></pre>
+                    Select Animation Speed <input type="range" min="1" max="200"
+                    value="1" class="slider" id="speedSelect" onchange="selectSleepTime(this)">
             </form>
+            </h4>
 
+
+                <h4>
                 <form id="plySelect">
                     <input type="radio" name="ply"
                         id="ply2" onclick="selectPly(this,2)" checked>
@@ -39,6 +71,8 @@
 
             </h4>
             <button type="button" onclick="startGame()">New Game</button>
+</div>
+
 
             <!-- four-button Promotion input -->
             <p> </p>
@@ -56,27 +90,9 @@
                 onclick="boardCanvas.gameBoardState.handlePromotion(1)" >
                 Rook </button>
              </p>
-            </h3>
 
-            <p align="center">
-                <canvas id="board" width="600" height="600"
-                        style="border:3px solid #000000" style="display:none">
-                    Your browser does not support canvas. Get a new browser.
-                </canvas>
 
-            <p>
-                <p>
-                Chess move generation and validation library: courtesy of
-                <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
-                <br> Read more about chess AI:
-                <a href="https://en.wikipedia.org/wiki/Evaluation_function#In_chess">
-                static evaluation</a>,
-                <a href="https://en.wikipedia.org/wiki/Minimax">minimax</a> and
-                <a href="https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning">
-                     alpha-beta pruning
-                </a>
 
-                </p>
 
             <br> </br>
         </div>

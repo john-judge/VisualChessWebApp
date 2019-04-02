@@ -69,6 +69,29 @@ h4 {
 }
 
 
+
+.sidenav {
+  height: 100%;
+  width: 160px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #CFE0FD;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #111;
+  display: block;
+}
+
+
+
 .menu {
     float: right;
     margin-top: 6px;
@@ -86,5 +109,3 @@ h4 {
     color: #444;
     text-decoration: none;
 }
-
-
