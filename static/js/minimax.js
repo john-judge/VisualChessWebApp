@@ -71,19 +71,6 @@ class Player {
 
         this.score += ((capScore + promScore + miscScore) * (isBlack ? 1 : -1));
     }
-    /*
-     machineRandom(boardState) { */
-        /* a chess AI that selects moves randomly */
-/*        var allMoves = boardState.gameState.moves();
-        var randInt = Math.floor(Math.random() * allMoves.length);
-        return allMoves[randInt];
-    }
-    */
-
-/*
-branch PARALLEL
-Goal: parallelize the execution of minimax
-*/
 
     sortMoves(moveList) {
         /* sort moves: capture moves at front */
