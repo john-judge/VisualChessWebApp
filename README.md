@@ -4,13 +4,28 @@ Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Watch
 
 
 
-Currently, you can visualize the tree in its board states of a 3-ply vanilla minimax, as the machine iterates through all possibilities and searches for the maximum score assuming the opponent (human input) will attempt to minimize the score.
+Currently, you can visualize the move tree in its board states of an alpha-beta pruning minimax algorithm with fast move ordering, as the machine iterates through all possibilities and searches for the maximum score assuming the opponent (human input) will attempt to minimize the score. 
+
+Interesting features (sidebar):
+- Select machine's ply (i.e. depth of move tree search)
+- Disable animation
+- Select animation speed
+
+Basic features
+- Restart game
+- Red board highlights to aid human player in move selection
+- Yellow board highlighting to show user the machine's last move
 
 
 
 
+Next ideas:
+- load/store game states
+- parallel execution (web workers) when animation disabled
+              
 
-  <p> 
+About
+  <p>
                 Chess move generation and validation library: courtesy of
                 <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
                 <br> 
@@ -23,9 +38,3 @@ Currently, you can visualize the tree in its board states of a 3-ply vanilla min
                      alpha-beta pruning
                 </a>
 
-
-Next ideas:
-- external-facing option to adjust play speed (sleepTime), ply, graphics verbosity
-- implement alpha beta pruning
-- load/store game states
-              
