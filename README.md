@@ -1,7 +1,9 @@
 # Web GUI for chess AI visualization
 
-Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Watch My Chess Moves" </a>: for visualizing the stream of conciousness of a chess machine.
+Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a>:
 
+
+![demo](static/demo.png)
 
 
 Currently, you can visualize the move tree in its board states of an alpha-beta pruning minimax algorithm with fast move ordering, as the machine iterates through all possibilities and searches for the maximum score assuming the opponent (human input) will attempt to minimize the score. 
@@ -19,7 +21,7 @@ Basic features
 
 
 
-Next ideas:
+Next ideas (not currently planning further development):
 - load/store game states
 - parallel execution (web workers) when animation disabled
               
