@@ -37,7 +37,9 @@ About
                 <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
                 <br> 
                 This site is deployed using PythonAnywhere.com.
-                The GUI and chess intelligence are all written from scratch in pure Javascript
+                <br>
+                The GUI and chess intelligence are all written from scratch in pure Javascript.
+                <br>
                 Information on chess AI:
                 <a href="https://en.wikipedia.org/wiki/Evaluation_function#In_chess">
                 static evaluation</a>,
