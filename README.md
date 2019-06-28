@@ -1,6 +1,6 @@
 # Web GUI for chess AI visualization
 
-Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a>, which visually displays the traversal of the tree of up to hundreds of thousands of possible moves as explored by a chess algorithm.
+Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a>, which concisely displays up to hundreds of thousands of possible moves explored by a chess algorithm.
 
 
 ![demo0](static/chess_demo.gif)
