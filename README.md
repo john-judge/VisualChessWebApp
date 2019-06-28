@@ -1,14 +1,17 @@
 # Web GUI for chess AI visualization
 
+Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a>, which visually displays the traversal of the tree of up to hundreds of thousands of possible moves as explored by a chess algorithm.
+
+
 ![demo0](static/chess_demo.gif)
 
-Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a>, which animates the traversal of the tree of possible moves as explored by a chess algorithm.
 
+Playing a chess game against a human player, this web app offers a customizable visualization of the possible-move tree traversed by an alpha-beta pruning minimax algorithm with fast move ordering, as the machine iterates through all possibilities and searches for the maximum strategic score assuming the human opponent will attempt to minimize this score. 
 
 ![demo1](static/demo.png)
 
 
-Currently, you can visualize the move tree in its board states of an alpha-beta pruning minimax algorithm with fast move ordering, as the machine iterates through all possibilities and searches for the maximum score assuming the opponent (human input) will attempt to minimize the score. 
+
 
 Interesting features (sidebar):
 - Select machine's ply (i.e. depth of move tree search)
