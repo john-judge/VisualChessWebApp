@@ -6,7 +6,7 @@ Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visua
 ![demo0](static/chess_demo.gif)
 
 
-Playing a chess game against a human player, this web app offers a customizable visualization of the possible-move tree traversed by an alpha-beta pruning minimax algorithm with fast move ordering. During this animation, the machine iterates through all legal moves and searches for the maximum strategic score assuming the human opponent will attempt to minimize this score. 
+As it plays chess against a human player, this app offers a customizable visualization of the possible-move tree traversed by an alpha-beta pruning minimax algorithm with fast move ordering. During this animation, the machine iterates through all legal moves and searches for the maximum strategic score assuming the human opponent will attempt to minimize this score. 
 
 ![demo1](static/demo.png)
 
