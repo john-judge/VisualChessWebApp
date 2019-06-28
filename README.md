@@ -1,6 +1,6 @@
 # Web GUI for chess AI visualization
 
-Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a>, which animates the traversal of the tree of possible moves done by an alpha-beta pruning minimax chess algorithm with fast move ordering.
+Source code for web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a>, which animates the traversal of the tree of possible moves as explored by a chess algorithm.
 
 
 ![demo](static/demo.png)
@@ -28,11 +28,12 @@ Next ideas (not currently planning further development):
 
 About
   <p>
-                Chess move generation and validation library: courtesy of
+                Legal chess move generation library: courtesy of
                 <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
                 <br> 
                 This site is deployed using PythonAnywhere.com.
-                Informative sources on chess AI:
+                The GUI and chess intelligence are all written from scratch in pure Javascript
+                Information on chess AI:
                 <a href="https://en.wikipedia.org/wiki/Evaluation_function#In_chess">
                 static evaluation</a>,
                 <a href="https://en.wikipedia.org/wiki/Minimax">minimax</a> and
