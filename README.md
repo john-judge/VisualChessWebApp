@@ -13,22 +13,11 @@ As it plays chess against a human player, this app offers a customizable visuali
 
 
 
-Interesting features (sidebar):
+Customization (sidebar):
 - Select machine's ply (i.e. depth of move tree search)
 - Disable animation
 - Select animation speed
 
-Basic features
-- Restart game
-- Red board highlights to aid human player in move selection
-- Yellow board highlighting to show user the machine's last move
-
-
-
-
-Next ideas (although I'm not currently planning further development):
-- load/store game states
-- parallel execution (web workers) when animation disabled
               
 
 About
@@ -36,9 +25,7 @@ About
                 Legal chess move generation library: courtesy of
                 <a href="https://github.com/jhlywa/chess.js/"> jhlywa </a>
                 <br> 
-                This site is deployed using PythonAnywhere.com.
-                <br>
-                The GUI and chess intelligence are all written from scratch in pure Javascript.
+                This site is hosted using PythonAnywhere.com.
                 <br>
                 Information on chess AI:
                 <a href="https://en.wikipedia.org/wiki/Evaluation_function#In_chess">
