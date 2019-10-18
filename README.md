@@ -1,6 +1,6 @@
 # Chess Algorithm visualization
 
-Web app <a href="http://visualchess.pythonanywhere.com/"> "Visualize Possible Chess Moves" </a> concisely displays up to hundreds of thousands of possible moves explored by a chess algorithm. The purpose of this program is aesthetic and artistic, as well as possibly educational.
+Web app <a href="http://jjudge.pythonanywhere.com/chess/"> "Visualize Possible Chess Moves" </a> concisely displays up to hundreds of thousands of possible moves explored by a chess algorithm. The purpose of this program is aesthetic and artistic, as well as possibly educational.
 
 
 ![demo0](static/chess_demo.gif)
